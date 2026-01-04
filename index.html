@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Privinote</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
+      font-family: Arial, sans-serif;
       background: #0f0f0f;
       color: #fff;
-      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,7 +20,7 @@
       background: #1c1c1c;
       padding: 20px;
       border-radius: 10px;
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       text-align: center;
     }
@@ -29,71 +28,102 @@
     textarea {
       width: 100%;
       height: 120px;
-      border-radius: 5px;
+      border-radius: 8px;
       border: none;
       padding: 10px;
       resize: none;
+      font-size: 16px;
     }
 
     button {
       margin-top: 10px;
-      padding: 10px;
       width: 100%;
-      border: none;
-      border-radius: 5px;
-      background: #ff0033;
-      color: white;
+      padding: 10px;
       font-size: 16px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      background: #ff0055;
+      color: #fff;
+    }
+
+    button:hover {
+      opacity: 0.9;
     }
 
     .link {
       margin-top: 10px;
       word-break: break-all;
+      font-size: 14px;
+      color: #00ffcc;
     }
   </style>
 </head>
 <body>
 
 <div class="box" id="create">
-  <h2>Criar mensagem</h2>
-  <textarea id="msg" placeholder="Digite sua mensagem secreta"></textarea>
+  <h2>🔐 Criar mensagem secreta</h2>
+  <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
   <button onclick="createNote()">Criar link</button>
-  <div class="link" id="link"></div>
+  <div class="link" id="result"></div>
 </div>
 
 <div class="box" id="view" style="display:none;">
-  <h2>Mensagem</h2>
+  <h2>📩 Mensagem secreta</h2>
   <p id="message"></p>
-  <button onclick="destroy()">Apagar mensagem</button>
 </div>
 
-<script>
-  function createNote() {
-    const text = document.getElementById('msg').value;
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // 🔥 COLE AQUI SUAS CHAVES DO FIREBASE
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "privinote.firebaseapp.com",
+    projectId: "privinote",
+    storageBucket: "privinote.appspot.com",
+    messagingSenderId: "SEU_MESSAGING_ID",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  const createBox = document.getElementById("create");
+  const viewBox = document.getElementById("view");
+  const messageEl = document.getElementById("message");
+
+  if (id) {
+    createBox.style.display = "none";
+    viewBox.style.display = "block";
+
+    const ref = doc(db, "notes", id);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      messageEl.innerText = "❌ Mensagem já foi destruída.";
+    } else {
+      messageEl.innerText = snap.data().text;
+      await deleteDoc(ref);
+    }
+  }
+
+  window.createNote = async function () {
+    const text = document.getElementById("text").value.trim();
     if (!text) return alert("Digite uma mensagem");
 
-    const id = Math.random().toString(36).substr(2, 9);
-    localStorage.setItem(id, text);
+    const id = Math.random().toString(36).substring(2, 10);
+    await setDoc(doc(db, "notes", id), {
+      text,
+      createdAt: Date.now()
+    });
 
-    const url = location.origin + location.pathname + "#" + id;
-    document.getElementById('link').innerHTML = 
-      "Link gerado:<br><a href='" + url + "'>" + url + "</a>";
-  }
-
-  function destroy() {
-    const id = location.hash.substring(1);
-    localStorage.removeItem(id);
-    location.hash = "";
-    location.reload();
-  }
-
-  const hash = location.hash.substring(1);
-  if (hash) {
-    const msg = localStorage.getItem(hash);
-    document.getElementById('create').style.display = "none";
-    document.getElementById('view').style.display = "block";
-    document.getElementById('message').innerText = msg || "Mensagem já foi apagada";
+    const link = `${location.origin}${location.pathname}?id=${id}`;
+    document.getElementById("result").innerText = link;
   }
 </script>
 
