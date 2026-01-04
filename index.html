@@ -1,116 +1,149 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Privinote</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Privinote</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      min-height: 100vh;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #020617;
+  --text: #e5e7eb;
+  --sub: #94a3b8;
+  --btn: #3b82f6;
+}
 
-    .container {
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(12px);
-      padding: 25px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+.light {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #020617;
+  --sub: #475569;
+  --btn: #2563eb;
+}
 
-    h2 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      text-align: center;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .subtitle {
-      font-size: 14px;
-      opacity: 0.8;
-      text-align: center;
-      margin-bottom: 15px;
-    }
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+  background: radial-gradient(circle at top, #1e293b, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    textarea {
-      width: 100%;
-      height: 130px;
-      background: #1c1c1c;
-      border: none;
-      border-radius: 12px;
-      padding: 12px;
-      color: #fff;
-      font-size: 15px;
-      resize: none;
-      outline: none;
-    }
+.container {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+}
 
-    button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: #fff;
-      cursor: pointer;
-    }
+.card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+}
 
-    button:hover {
-      opacity: 0.9;
-    }
+h2 {
+  margin-top: 0;
+}
 
-    .link {
-      margin-top: 12px;
-      word-break: break-all;
-      font-size: 14px;
-      color: #7ee3ff;
-      text-align: center;
-    }
+p {
+  color: var(--sub);
+  font-size: 14px;
+}
 
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 13px;
-      opacity: 0.85;
-    }
+textarea {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  border: none;
+  padding: 12px;
+  font-size: 15px;
+  resize: none;
+  outline: none;
+}
 
-    .footer a {
-      color: #00c6ff;
-      text-decoration: none;
-      font-weight: 600;
-    }
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--btn);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 12px;
+}
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--sub);
+  color: var(--text);
+}
 
-    p {
-      word-break: break-word;
-      background: #1c1c1c;
-      padding: 15px;
-      border-radius: 12px;
-    }
-  </style>
+button:hover {
+  opacity: .9;
+}
+
+.link {
+  margin-top: 10px;
+  word-break: break-all;
+  font-size: 13px;
+  color: #38bdf8;
+}
+
+.footer {
+  margin-top: 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.footer a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.toggle {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--sub);
+}
+</style>
 </head>
 
 <body>
+<div class="container">
 
-<div class="container" id="create">
-  <h2>🔐 Criar mensagem secreta</h2>
-  <div class="subtitle">A mensagem será destruída após ser aberta</div>
+<!-- ===== CRIAR ===== -->
+<div class="card" id="create">
+  <div class="top">
+    <strong>🔐 Privinote</strong>
+    <span class="toggle" onclick="toggleTheme()">🌗 Modo</span>
+  </div>
+
+  <h2>Criar mensagem secreta</h2>
+  <p>A mensagem será destruída após o limite de cliques</p>
 
   <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
+
   <button onclick="createNote()">Criar link secreto</button>
+
+  <!-- BOTÃO EXTRA -->
+  <button class="secondary" onclick="scrollToTop()">➕ Criar seu Privinote</button>
 
   <div class="link" id="result"></div>
 
@@ -119,7 +152,8 @@
   </div>
 </div>
 
-<div class="container" id="view" style="display:none;">
+<!-- ===== VISUALIZAR ===== -->
+<div class="card" id="view" style="display:none;">
   <h2>📩 Mensagem secreta</h2>
   <p id="message"></p>
 
@@ -128,62 +162,89 @@
   </div>
 </div>
 
+</div>
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-    authDomain: "privinote.firebaseapp.com",
-    projectId: "privinote",
-    storageBucket: "privinote.firebasestorage.app",
-    messagingSenderId: "583662739248",
-    appId: "1:583662739248:web:ba624aa2e0cd070a0272f5"
-  };
+/* 🔥 FIREBASE CONFIG (SEU) */
+const firebaseConfig = {
+  apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+  authDomain: "privinote.firebaseapp.com",
+  projectId: "privinote",
+  storageBucket: "privinote.firebasestorage.app",
+  messagingSenderId: "583662739248",
+  appId: "1:583662739248:web:ba624aa2e0cd070a0272f5"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
+/* ===== THEME ===== */
+window.toggleTheme = function () {
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",
+    document.body.classList.contains("light") ? "light" : "dark"
+  );
+};
 
-  const createBox = document.getElementById("create");
-  const viewBox = document.getElementById("view");
-  const messageEl = document.getElementById("message");
+if (localStorage.getItem("theme") === "light") {
+  document.body.classList.add("light");
+}
 
-  if (id) {
-    createBox.style.display = "none";
-    viewBox.style.display = "block";
+/* ===== PAGE LOGIC ===== */
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
 
-    const ref = doc(db, "notes", id);
-    const snap = await getDoc(ref);
+const createBox = document.getElementById("create");
+const viewBox = document.getElementById("view");
+const messageEl = document.getElementById("message");
 
-    if (!snap.exists()) {
-      messageEl.innerText = "❌ Mensagem já foi destruída ou não existe.";
-    } else {
-      messageEl.innerText = snap.data().text;
+if (id) {
+  createBox.style.display = "none";
+  viewBox.style.display = "block";
+
+  const ref = doc(db, "notes", id);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    messageEl.innerText = "❌ Mensagem já foi destruída.";
+  } else {
+    const data = snap.data();
+
+    if (data.clicks <= 0) {
+      messageEl.innerText = "❌ Limite de cliques atingido.";
       await deleteDoc(ref);
+    } else {
+      messageEl.innerText = data.text;
+      await updateDoc(ref, { clicks: data.clicks - 1 });
+
+      if (data.clicks - 1 <= 0) {
+        await deleteDoc(ref);
+      }
     }
   }
+}
 
-  window.createNote = async function () {
-    const text = document.getElementById("text").value.trim();
-    if (!text) {
-      alert("Digite uma mensagem");
-      return;
-    }
+/* ===== CREATE NOTE ===== */
+window.createNote = async function () {
+  const text = document.getElementById("text").value.trim();
+  if (!text) return alert("Digite uma mensagem");
 
-    const id = Math.random().toString(36).substring(2, 10);
+  const id = Math.random().toString(36).substring(2, 10);
 
-    await setDoc(doc(db, "notes", id), {
-      text,
-      createdAt: Date.now()
-    });
+  await setDoc(doc(db, "notes", id), {
+    text: text,
+    clicks: 1, // 🔥 LIMITE DE CLIQUE (1)
+    createdAt: Date.now()
+  });
 
-    const link = `${location.origin}${location.pathname}?id=${id}`;
-    document.getElementById("result").innerText = link;
-  }
+  const link = `${location.origin}${location.pathname}?id=${id}`;
+  document.getElementById("result").innerText = link;
+};
+
+window.scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 </script>
-
 </body>
 </html>
