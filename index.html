@@ -1,159 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Privinote</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Privinote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-:root {
-  --bg: #0f172a;
-  --card: #020617;
-  --text: #e5e7eb;
-  --sub: #94a3b8;
-  --btn: #3b82f6;
-}
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      animation: fadeIn 0.8s ease;
+    }
 
-.light {
-  --bg: #f1f5f9;
-  --card: #ffffff;
-  --text: #020617;
-  --sub: #475569;
-  --btn: #2563eb;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-* {
-  box-sizing: border-box;
-}
+    .box {
+      background: rgba(0,0,0,0.6);
+      padding: 22px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      animation: slideUp 0.6s ease;
+    }
 
-body {
-  margin: 0;
-  font-family: system-ui, Arial, sans-serif;
-  background: radial-gradient(circle at top, #1e293b, var(--bg));
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
 
-.container {
-  width: 100%;
-  max-width: 420px;
-  padding: 16px;
-}
+    h2 {
+      margin-bottom: 5px;
+    }
 
-.card {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.4);
-}
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 15px;
+    }
 
-h2 {
-  margin-top: 0;
-}
+    textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      border: none;
+      padding: 12px;
+      resize: none;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 10px;
+    }
 
-p {
-  color: var(--sub);
-  font-size: 14px;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      transition: transform 0.2s, opacity 0.2s;
+    }
 
-textarea {
-  width: 100%;
-  height: 120px;
-  border-radius: 12px;
-  border: none;
-  padding: 12px;
-  font-size: 15px;
-  resize: none;
-  outline: none;
-}
+    button:hover {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
 
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  background: var(--btn);
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 12px;
-}
+    .link-box {
+      margin-top: 12px;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
 
-button.secondary {
-  background: transparent;
-  border: 1px solid var(--sub);
-  color: var(--text);
-}
+    .link {
+      word-break: break-all;
+      font-size: 14px;
+      color: #00ffcc;
+      margin-bottom: 8px;
+    }
 
-button:hover {
-  opacity: .9;
-}
+    .copy-btn {
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+    }
 
-.link {
-  margin-top: 10px;
-  word-break: break-all;
-  font-size: 13px;
-  color: #38bdf8;
-}
+    .copy-btn:hover {
+      background: #00ddb3;
+    }
 
-.footer {
-  margin-top: 14px;
-  font-size: 13px;
-  text-align: center;
-}
+    .footer {
+      margin-top: 15px;
+      font-size: 13px;
+      opacity: 0.85;
+    }
 
-.footer a {
-  color: #38bdf8;
-  text-decoration: none;
-}
-
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.toggle {
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--sub);
-}
-</style>
+    .footer a {
+      color: #00c6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
 
-<!-- ===== CRIAR ===== -->
-<div class="card" id="create">
-  <div class="top">
-    <strong>🔐 Privinote</strong>
-    <span class="toggle" onclick="toggleTheme()">🌗 Modo</span>
-  </div>
-
-  <h2>Criar mensagem secreta</h2>
-  <p>A mensagem será destruída após o limite de cliques</p>
+<div class="box" id="create">
+  <h2>🔐 Criar mensagem secreta</h2>
+  <div class="subtitle">A mensagem será destruída após ser aberta</div>
 
   <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
 
   <button onclick="createNote()">Criar link secreto</button>
 
-  <!-- BOTÃO EXTRA -->
-  <button class="secondary" onclick="scrollToTop()">➕ Criar seu Privinote</button>
-
-  <div class="link" id="result"></div>
+  <div class="link-box" id="linkBox">
+    <div class="link" id="result"></div>
+    <button class="copy-btn" onclick="copyLink()">📋 Copiar link</button>
+  </div>
 
   <div class="footer">
     Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
   </div>
 </div>
 
-<!-- ===== VISUALIZAR ===== -->
-<div class="card" id="view" style="display:none;">
+<div class="box" id="view" style="display:none;">
   <h2>📩 Mensagem secreta</h2>
   <p id="message"></p>
 
@@ -162,89 +143,66 @@ button:hover {
   </div>
 </div>
 
-</div>
-
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* 🔥 FIREBASE CONFIG (SEU) */
-const firebaseConfig = {
-  apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-  authDomain: "privinote.firebaseapp.com",
-  projectId: "privinote",
-  storageBucket: "privinote.firebasestorage.app",
-  messagingSenderId: "583662739248",
-  appId: "1:583662739248:web:ba624aa2e0cd070a0272f5"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+    authDomain: "privinote.firebaseapp.com",
+    projectId: "privinote",
+    storageBucket: "privinote.firebasestorage.app",
+    messagingSenderId: "583662739248",
+    appId: "1:583662739248:web:ba624aa2e0cd070a0272f5"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-/* ===== THEME ===== */
-window.toggleTheme = function () {
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme",
-    document.body.classList.contains("light") ? "light" : "dark"
-  );
-};
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
 
-if (localStorage.getItem("theme") === "light") {
-  document.body.classList.add("light");
-}
+  const createBox = document.getElementById("create");
+  const viewBox = document.getElementById("view");
+  const messageEl = document.getElementById("message");
 
-/* ===== PAGE LOGIC ===== */
-const params = new URLSearchParams(location.search);
-const id = params.get("id");
+  if (id) {
+    createBox.style.display = "none";
+    viewBox.style.display = "block";
 
-const createBox = document.getElementById("create");
-const viewBox = document.getElementById("view");
-const messageEl = document.getElementById("message");
+    const ref = doc(db, "notes", id);
+    const snap = await getDoc(ref);
 
-if (id) {
-  createBox.style.display = "none";
-  viewBox.style.display = "block";
-
-  const ref = doc(db, "notes", id);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) {
-    messageEl.innerText = "❌ Mensagem já foi destruída.";
-  } else {
-    const data = snap.data();
-
-    if (data.clicks <= 0) {
-      messageEl.innerText = "❌ Limite de cliques atingido.";
-      await deleteDoc(ref);
+    if (!snap.exists()) {
+      messageEl.innerText = "❌ Esta mensagem já foi destruída.";
     } else {
-      messageEl.innerText = data.text;
-      await updateDoc(ref, { clicks: data.clicks - 1 });
-
-      if (data.clicks - 1 <= 0) {
-        await deleteDoc(ref);
-      }
+      messageEl.innerText = snap.data().text;
+      await deleteDoc(ref);
     }
   }
-}
 
-/* ===== CREATE NOTE ===== */
-window.createNote = async function () {
-  const text = document.getElementById("text").value.trim();
-  if (!text) return alert("Digite uma mensagem");
+  window.createNote = async function () {
+    const text = document.getElementById("text").value.trim();
+    if (!text) return alert("Digite uma mensagem");
 
-  const id = Math.random().toString(36).substring(2, 10);
+    const id = Math.random().toString(36).substring(2, 10);
 
-  await setDoc(doc(db, "notes", id), {
-    text: text,
-    clicks: 1, // 🔥 LIMITE DE CLIQUE (1)
-    createdAt: Date.now()
-  });
+    await setDoc(doc(db, "notes", id), {
+      text,
+      createdAt: Date.now()
+    });
 
-  const link = `${location.origin}${location.pathname}?id=${id}`;
-  document.getElementById("result").innerText = link;
-};
+    const link = `${location.origin}${location.pathname}?id=${id}`;
+    document.getElementById("result").innerText = link;
+    document.getElementById("linkBox").style.display = "block";
+  }
 
-window.scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  window.copyLink = function () {
+    const link = document.getElementById("result").innerText;
+    navigator.clipboard.writeText(link);
+    alert("✅ Link copiado!");
+  }
 </script>
+
 </body>
 </html>
