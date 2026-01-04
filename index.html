@@ -15,16 +15,11 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      animation: fadeIn 0.6s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      overflow: hidden;
     }
 
     .box {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.65);
       padding: 22px;
       border-radius: 14px;
       width: 100%;
@@ -32,6 +27,7 @@
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.4);
       animation: slideUp 0.5s ease;
+      z-index: 2;
     }
 
     @keyframes slideUp {
@@ -60,6 +56,7 @@
       cursor: pointer;
       background: linear-gradient(135deg, #00c6ff, #0072ff);
       color: #fff;
+      margin-top: 8px;
       transition: transform 0.2s, opacity 0.2s;
     }
 
@@ -73,28 +70,23 @@
       font-weight: bold;
     }
 
-    .link-box {
-      margin-top: 12px;
-      display: none;
-    }
-
-    .link {
-      word-break: break-all;
-      font-size: 14px;
-      color: #00ffcc;
-      margin-bottom: 8px;
-    }
-
     .copy-btn {
       background: #00ffcc;
       color: #000;
       font-weight: bold;
     }
 
+    .link {
+      word-break: break-all;
+      font-size: 14px;
+      color: #00ffcc;
+      margin-top: 10px;
+    }
+
     .footer {
       margin-top: 15px;
-      font-size: 13px;
-      opacity: 0.85;
+      font-size: 12px;
+      opacity: 0.7;
     }
 
     .footer a {
@@ -102,44 +94,75 @@
       text-decoration: none;
       font-weight: bold;
     }
+
+    .legal {
+      font-size: 11px;
+      opacity: 0.5;
+      margin-top: 6px;
+    }
+
+    /* Explosão visual */
+    .explosion {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, #ff4b2b, #000);
+      animation: explode 0.6s ease forwards;
+      z-index: 1;
+    }
+
+    @keyframes explode {
+      from { opacity: 0; transform: scale(0.3); }
+      to { opacity: 1; transform: scale(2); }
+    }
   </style>
 </head>
 <body>
 
+<!-- EXPLOSÃO -->
+<div id="explosion" style="display:none;" class="explosion"></div>
+
 <!-- CRIAR NOTA -->
 <div class="box" id="create">
   <h2>🔐 Criar mensagem secreta</h2>
+
   <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
   <button onclick="createNote()">Criar link secreto</button>
 
-  <div class="link-box" id="linkBox">
+  <div id="linkBox" style="display:none;">
     <div class="link" id="result"></div>
     <button class="copy-btn" onclick="copyLink()">📋 Copiar link</button>
   </div>
 
   <div class="footer">
     Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    <div class="legal">Não utilize para atividades ilegais.</div>
   </div>
 </div>
 
-<!-- TELA QUEBRA NOTA -->
+<!-- QUEBRA NOTA -->
 <div class="box" id="breaker" style="display:none;">
   <h2>⚠️ Mensagem protegida</h2>
-  <p>Esta mensagem será destruída após ser aberta.</p>
+  <p>Ao quebrar, a mensagem será destruída.</p>
+
   <button class="danger" onclick="breakNote()">💣 Quebrar nota</button>
+  <button onclick="goCreate()">➕ Criar nova nota</button>
 
   <div class="footer">
     Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    <div class="legal">Não utilize para atividades ilegais.</div>
   </div>
 </div>
 
-<!-- VISUALIZAR NOTA -->
+<!-- VER NOTA -->
 <div class="box" id="view" style="display:none;">
   <h2>📩 Mensagem secreta</h2>
   <p id="message"></p>
 
+  <button onclick="goCreate()">➕ Criar nova nota</button>
+
   <div class="footer">
     Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    <div class="legal">Não utilize para atividades ilegais.</div>
   </div>
 </div>
 
@@ -165,6 +188,7 @@
   const createBox = document.getElementById("create");
   const breakerBox = document.getElementById("breaker");
   const viewBox = document.getElementById("view");
+  const explosion = document.getElementById("explosion");
   const messageEl = document.getElementById("message");
 
   if (id) {
@@ -173,18 +197,27 @@
   }
 
   window.breakNote = async function () {
-    breakerBox.style.display = "none";
-    viewBox.style.display = "block";
+    explosion.style.display = "block";
 
-    const ref = doc(db, "notes", id);
-    const snap = await getDoc(ref);
+    setTimeout(async () => {
+      breakerBox.style.display = "none";
+      viewBox.style.display = "block";
+      explosion.style.display = "none";
 
-    if (!snap.exists()) {
-      messageEl.innerText = "❌ Esta mensagem já foi destruída.";
-    } else {
-      messageEl.innerText = snap.data().text;
-      await deleteDoc(ref);
-    }
+      const ref = doc(db, "notes", id);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        messageEl.innerText = "❌ Esta mensagem já foi destruída.";
+      } else {
+        messageEl.innerText = snap.data().text;
+        await deleteDoc(ref);
+      }
+    }, 600);
+  }
+
+  window.goCreate = function () {
+    window.location.href = location.pathname;
   }
 
   window.createNote = async function () {
@@ -192,11 +225,7 @@
     if (!text) return alert("Digite uma mensagem");
 
     const id = Math.random().toString(36).substring(2, 10);
-
-    await setDoc(doc(db, "notes", id), {
-      text,
-      createdAt: Date.now()
-    });
+    await setDoc(doc(db, "notes", id), { text, createdAt: Date.now() });
 
     const link = `${location.origin}${location.pathname}?id=${id}`;
     document.getElementById("result").innerText = link;
@@ -204,8 +233,7 @@
   }
 
   window.copyLink = function () {
-    const link = document.getElementById("result").innerText;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(document.getElementById("result").innerText);
     alert("✅ Link copiado!");
   }
 </script>
