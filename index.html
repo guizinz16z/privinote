@@ -1,241 +1,259 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Privinote</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Privinote</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
-    }
+<style>
+:root{
+  --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  --bg-light: linear-gradient(135deg,#f5f7fa,#c3cfe2);
+  --box-dark: rgba(0,0,0,.65);
+  --box-light: rgba(255,255,255,.85);
+  --text-dark:#fff;
+  --text-light:#000;
+}
 
-    .box {
-      background: rgba(0,0,0,0.65);
-      padding: 22px;
-      border-radius: 14px;
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      animation: slideUp 0.5s ease;
-      z-index: 2;
-    }
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg-dark);
+  color:var(--text-dark);
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition:.4s;
+}
 
-    @keyframes slideUp {
-      from { transform: translateY(25px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
+body.light{
+  background:var(--bg-light);
+  color:var(--text-light);
+}
 
-    textarea {
-      width: 100%;
-      height: 120px;
-      border-radius: 10px;
-      border: none;
-      padding: 12px;
-      resize: none;
-      font-size: 16px;
-      outline: none;
-      margin-bottom: 10px;
-    }
+.box{
+  background:var(--box-dark);
+  padding:22px;
+  border-radius:14px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  animation:slide .5s ease;
+  z-index:2;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: #fff;
-      margin-top: 8px;
-      transition: transform 0.2s, opacity 0.2s;
-    }
+body.light .box{background:var(--box-light);}
 
-    button:hover {
-      transform: scale(1.04);
-      opacity: 0.95;
-    }
+@keyframes slide{
+  from{transform:translateY(25px);opacity:0}
+  to{transform:none;opacity:1}
+}
 
-    .danger {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-      font-weight: bold;
-    }
+textarea{
+  width:100%;
+  height:120px;
+  border-radius:10px;
+  border:none;
+  padding:12px;
+  font-size:16px;
+  resize:none;
+}
 
-    .copy-btn {
-      background: #00ffcc;
-      color: #000;
-      font-weight: bold;
-    }
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:8px;
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:#fff;
+  transition:.2s;
+}
 
-    .link {
-      word-break: break-all;
-      font-size: 14px;
-      color: #00ffcc;
-      margin-top: 10px;
-    }
+button:hover{transform:scale(1.04)}
 
-    .footer {
-      margin-top: 15px;
-      font-size: 12px;
-      opacity: 0.7;
-    }
+.danger{
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  font-weight:bold;
+}
 
-    .footer a {
-      color: #00c6ff;
-      text-decoration: none;
-      font-weight: bold;
-    }
+.copy-btn{
+  background:#00ffcc;
+  color:#000;
+  font-weight:bold;
+}
 
-    .legal {
-      font-size: 11px;
-      opacity: 0.5;
-      margin-top: 6px;
-    }
+.link{
+  word-break:break-all;
+  font-size:14px;
+  color:#00ffcc;
+  margin-top:10px;
+}
 
-    /* Explosão visual */
-    .explosion {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle, #ff4b2b, #000);
-      animation: explode 0.6s ease forwards;
-      z-index: 1;
-    }
+.footer{
+  margin-top:14px;
+  font-size:12px;
+  opacity:.7;
+}
 
-    @keyframes explode {
-      from { opacity: 0; transform: scale(0.3); }
-      to { opacity: 1; transform: scale(2); }
-    }
-  </style>
+.footer a{color:#00c6ff;text-decoration:none;font-weight:bold}
+
+.legal{font-size:11px;opacity:.5;margin-top:5px}
+
+/* TOGGLE */
+.toggle{
+  position:fixed;
+  top:15px;
+  right:15px;
+  z-index:5;
+  font-size:20px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+/* EXPLOSÃO */
+.flash{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  opacity:0;
+  z-index:1;
+}
+
+.flash.active{
+  animation:flash .5s;
+}
+
+@keyframes flash{
+  0%{opacity:0}
+  30%{opacity:1}
+  100%{opacity:0}
+}
+
+.shake{
+  animation:shake .4s;
+}
+
+@keyframes shake{
+  0%{transform:translate(0)}
+  25%{transform:translate(-5px,5px)}
+  50%{transform:translate(5px,-5px)}
+  75%{transform:translate(-5px,5px)}
+  100%{transform:translate(0)}
+}
+</style>
 </head>
 <body>
 
-<!-- EXPLOSÃO -->
-<div id="explosion" style="display:none;" class="explosion"></div>
+<button class="toggle" onclick="toggleTheme()">🌙</button>
+<div class="flash" id="flash"></div>
 
-<!-- CRIAR NOTA -->
+<!-- CRIAR -->
 <div class="box" id="create">
-  <h2>🔐 Criar mensagem secreta</h2>
+<h2>🔐 Criar mensagem secreta</h2>
+<textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
+<button onclick="createNote()">Criar link secreto</button>
 
-  <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
-  <button onclick="createNote()">Criar link secreto</button>
-
-  <div id="linkBox" style="display:none;">
-    <div class="link" id="result"></div>
-    <button class="copy-btn" onclick="copyLink()">📋 Copiar link</button>
-  </div>
-
-  <div class="footer">
-    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-    <div class="legal">Não utilize para atividades ilegais.</div>
-  </div>
+<div id="linkBox" style="display:none">
+  <div class="link" id="result"></div>
+  <button class="copy-btn" onclick="copyLink()">📋 Copiar link</button>
 </div>
 
-<!-- QUEBRA NOTA -->
-<div class="box" id="breaker" style="display:none;">
-  <h2>⚠️ Mensagem protegida</h2>
-  <p>Ao quebrar, a mensagem será destruída.</p>
-
-  <button class="danger" onclick="breakNote()">💣 Quebrar nota</button>
-  <button onclick="goCreate()">➕ Criar nova nota</button>
-
-  <div class="footer">
-    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-    <div class="legal">Não utilize para atividades ilegais.</div>
-  </div>
+<div class="footer">
+Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+<div class="legal">Não utilize para atividades ilegais.</div>
+</div>
 </div>
 
-<!-- VER NOTA -->
-<div class="box" id="view" style="display:none;">
-  <h2>📩 Mensagem secreta</h2>
-  <p id="message"></p>
+<!-- QUEBRA -->
+<div class="box" id="breaker" style="display:none">
+<h2>⚠️ Mensagem protegida</h2>
+<p>Ao quebrar, a mensagem será destruída.</p>
+<button class="danger" onclick="breakNote()">💣 Quebrar nota</button>
+<button onclick="goCreate()">➕ Criar nova nota</button>
+</div>
 
-  <button onclick="goCreate()">➕ Criar nova nota</button>
-
-  <div class="footer">
-    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-    <div class="legal">Não utilize para atividades ilegais.</div>
-  </div>
+<!-- VIEW -->
+<div class="box" id="view" style="display:none">
+<h2>📩 Mensagem secreta</h2>
+<p id="message"></p>
+<button onclick="goCreate()">➕ Criar nova nota</button>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-    authDomain: "privinote.firebaseapp.com",
-    projectId: "privinote",
-    storageBucket: "privinote.firebasestorage.app",
-    messagingSenderId: "583662739248",
-    appId: "1:583662739248:web:ba624aa2e0cd070a0272f5"
-  };
+const firebaseConfig={
+apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+authDomain:"privinote.firebaseapp.com",
+projectId:"privinote",
+storageBucket:"privinote.firebasestorage.app",
+messagingSenderId:"583662739248",
+appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
+const params=new URLSearchParams(location.search);
+const id=params.get("id");
 
-  const createBox = document.getElementById("create");
-  const breakerBox = document.getElementById("breaker");
-  const viewBox = document.getElementById("view");
-  const explosion = document.getElementById("explosion");
-  const messageEl = document.getElementById("message");
+const create=document.getElementById("create");
+const breaker=document.getElementById("breaker");
+const view=document.getElementById("view");
+const msg=document.getElementById("message");
+const flash=document.getElementById("flash");
 
-  if (id) {
-    createBox.style.display = "none";
-    breakerBox.style.display = "block";
-  }
+if(id){create.style.display="none";breaker.style.display="block"}
 
-  window.breakNote = async function () {
-    explosion.style.display = "block";
+window.breakNote=async()=>{
+flash.classList.add("active");
+document.body.classList.add("shake");
 
-    setTimeout(async () => {
-      breakerBox.style.display = "none";
-      viewBox.style.display = "block";
-      explosion.style.display = "none";
+setTimeout(async()=>{
+breaker.style.display="none";
+view.style.display="block";
+flash.classList.remove("active");
+document.body.classList.remove("shake");
 
-      const ref = doc(db, "notes", id);
-      const snap = await getDoc(ref);
+const ref=doc(db,"notes",id);
+const snap=await getDoc(ref);
 
-      if (!snap.exists()) {
-        messageEl.innerText = "❌ Esta mensagem já foi destruída.";
-      } else {
-        messageEl.innerText = snap.data().text;
-        await deleteDoc(ref);
-      }
-    }, 600);
-  }
+if(!snap.exists()){
+msg.innerText="❌ Mensagem já destruída.";
+}else{
+msg.innerText=snap.data().text;
+await deleteDoc(ref);
+}
+},500);
+}
 
-  window.goCreate = function () {
-    window.location.href = location.pathname;
-  }
+window.createNote=async()=>{
+const text=document.getElementById("text").value.trim();
+if(!text)return alert("Digite uma mensagem");
+const id=Math.random().toString(36).substring(2,10);
+await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
+document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
+document.getElementById("linkBox").style.display="block";
+}
 
-  window.createNote = async function () {
-    const text = document.getElementById("text").value.trim();
-    if (!text) return alert("Digite uma mensagem");
+window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
 
-    const id = Math.random().toString(36).substring(2, 10);
-    await setDoc(doc(db, "notes", id), { text, createdAt: Date.now() });
+window.goCreate=()=>location.href=location.pathname;
 
-    const link = `${location.origin}${location.pathname}?id=${id}`;
-    document.getElementById("result").innerText = link;
-    document.getElementById("linkBox").style.display = "block";
-  }
-
-  window.copyLink = function () {
-    navigator.clipboard.writeText(document.getElementById("result").innerText);
-    alert("✅ Link copiado!");
-  }
+// THEME
+function toggleTheme(){
+document.body.classList.toggle("light");
+localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+}
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 </script>
 
 </body>
