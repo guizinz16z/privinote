@@ -15,7 +15,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      animation: fadeIn 0.8s ease;
+      animation: fadeIn 0.6s ease;
     }
 
     @keyframes fadeIn {
@@ -31,22 +31,12 @@
       max-width: 420px;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      animation: slideUp 0.6s ease;
+      animation: slideUp 0.5s ease;
     }
 
     @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
+      from { transform: translateY(25px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
-    }
-
-    h2 {
-      margin-bottom: 5px;
-    }
-
-    .subtitle {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 15px;
     }
 
     textarea {
@@ -74,14 +64,18 @@
     }
 
     button:hover {
-      transform: scale(1.03);
+      transform: scale(1.04);
       opacity: 0.95;
+    }
+
+    .danger {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      font-weight: bold;
     }
 
     .link-box {
       margin-top: 12px;
       display: none;
-      animation: fadeIn 0.4s ease;
     }
 
     .link {
@@ -95,10 +89,6 @@
       background: #00ffcc;
       color: #000;
       font-weight: bold;
-    }
-
-    .copy-btn:hover {
-      background: #00ddb3;
     }
 
     .footer {
@@ -116,12 +106,10 @@
 </head>
 <body>
 
+<!-- CRIAR NOTA -->
 <div class="box" id="create">
   <h2>🔐 Criar mensagem secreta</h2>
-  <div class="subtitle">A mensagem será destruída após ser aberta</div>
-
   <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
-
   <button onclick="createNote()">Criar link secreto</button>
 
   <div class="link-box" id="linkBox">
@@ -134,6 +122,18 @@
   </div>
 </div>
 
+<!-- TELA QUEBRA NOTA -->
+<div class="box" id="breaker" style="display:none;">
+  <h2>⚠️ Mensagem protegida</h2>
+  <p>Esta mensagem será destruída após ser aberta.</p>
+  <button class="danger" onclick="breakNote()">💣 Quebrar nota</button>
+
+  <div class="footer">
+    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+  </div>
+</div>
+
+<!-- VISUALIZAR NOTA -->
 <div class="box" id="view" style="display:none;">
   <h2>📩 Mensagem secreta</h2>
   <p id="message"></p>
@@ -163,11 +163,17 @@
   const id = params.get("id");
 
   const createBox = document.getElementById("create");
+  const breakerBox = document.getElementById("breaker");
   const viewBox = document.getElementById("view");
   const messageEl = document.getElementById("message");
 
   if (id) {
     createBox.style.display = "none";
+    breakerBox.style.display = "block";
+  }
+
+  window.breakNote = async function () {
+    breakerBox.style.display = "none";
     viewBox.style.display = "block";
 
     const ref = doc(db, "notes", id);
