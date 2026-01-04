@@ -128,7 +128,7 @@
   <div class="link" id="result"></div>
 
   <div class="creator">
-    Criado por <a href="t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
   </div>
 </div>
 
@@ -139,7 +139,7 @@
   <div class="message-box" id="message"></div>
 
   <div class="creator">
-    Criado por <a href="t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
   </div>
 </div>
 
@@ -148,7 +148,6 @@
   import { getFirestore, doc, setDoc, getDoc, deleteDoc }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // 🔥 FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
     authDomain: "privinote.firebaseapp.com",
@@ -179,7 +178,7 @@
       messageEl.innerText = "❌ Esta mensagem já foi destruída.";
     } else {
       messageEl.innerText = snap.data().text;
-      await deleteDoc(ref); // 💥 autodestrói
+      await deleteDoc(ref);
     }
   }
 
