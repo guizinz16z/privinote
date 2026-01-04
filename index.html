@@ -2,49 +2,76 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Privinote</title>
+  <title>Privinote 🔒</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      color: #fff;
     }
 
     .box {
-      background: #1c1c1c;
-      padding: 20px;
-      border-radius: 10px;
+      background: #121212;
+      padding: 25px;
+      border-radius: 16px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      animation: fade 0.4s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 15px;
     }
 
     textarea {
       width: 100%;
       height: 120px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: none;
-      padding: 10px;
+      padding: 12px;
       resize: none;
-      font-size: 16px;
+      font-size: 15px;
+      background: #1f1f1f;
+      color: #fff;
+      outline: none;
     }
 
     button {
-      margin-top: 10px;
+      margin-top: 14px;
       width: 100%;
-      padding: 10px;
-      font-size: 16px;
+      padding: 12px;
+      font-size: 15px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      background: #ff0055;
-      color: #fff;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #000;
+      font-weight: bold;
     }
 
     button:hover {
@@ -52,32 +79,76 @@
     }
 
     .link {
-      margin-top: 10px;
+      margin-top: 12px;
       word-break: break-all;
-      font-size: 14px;
-      color: #00ffcc;
+      font-size: 13px;
+      color: #00e5ff;
+      background: #0b0b0b;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .message-box {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 15px;
+      word-break: break-word;
+    }
+
+    .creator {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .creator a {
+      color: #00c6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .creator a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
+<!-- CRIAR -->
 <div class="box" id="create">
   <h2>🔐 Criar mensagem secreta</h2>
+  <div class="subtitle">A mensagem será destruída após ser aberta</div>
+
   <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
-  <button onclick="createNote()">Criar link</button>
+  <button onclick="createNote()">Criar link secreto</button>
+
   <div class="link" id="result"></div>
+
+  <div class="creator">
+    Criado por <a href="t.me/Guizin16z" target="_blank">@SEUUSUARIO</a>
+  </div>
 </div>
 
+<!-- VISUALIZAR -->
 <div class="box" id="view" style="display:none;">
   <h2>📩 Mensagem secreta</h2>
-  <p id="message"></p>
+
+  <div class="message-box" id="message"></div>
+
+  <div class="creator">
+    Criado por <a href="https://t.me/SEUUSUARIO" target="_blank">@SEUUSUARIO</a>
+  </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // 🔥 COLE AQUI SUAS CHAVES DO FIREBASE
+  // 🔥 FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
     authDomain: "privinote.firebaseapp.com",
@@ -105,10 +176,10 @@
     const snap = await getDoc(ref);
 
     if (!snap.exists()) {
-      messageEl.innerText = "❌ Mensagem já foi destruída.";
+      messageEl.innerText = "❌ Esta mensagem já foi destruída.";
     } else {
       messageEl.innerText = snap.data().text;
-      await deleteDoc(ref);
+      await deleteDoc(ref); // 💥 autodestrói
     }
   }
 
@@ -124,7 +195,7 @@
 
     const link = `${location.origin}${location.pathname}?id=${id}`;
     document.getElementById("result").innerText = link;
-  }
+  };
 </script>
 
 </body>
