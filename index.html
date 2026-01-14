@@ -79,9 +79,8 @@ button:hover{
   box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
 
-.danger{
-  background:linear-gradient(135deg,#ff416c,#ff4b2b);
-  font-weight:bold;
+.secondary{
+  background:#444;
 }
 
 .copy-btn{
@@ -121,118 +120,78 @@ button:hover{
   font-size:14px;
   border-radius:10px;
 }
-
-.flash{
-  position:fixed;
-  inset:0;
-  background:#fff;
-  opacity:0;
-  pointer-events:none;
-}
-
-.flash.active{animation:flash .5s}
-
-@keyframes flash{
-  0%{opacity:0}
-  30%{opacity:1}
-  100%{opacity:0}
-}
-
-.time{
-  margin-top:12px;
-  font-size:13px;
-  opacity:.75;
-}
 </style>
 </head>
 
 <body>
 
+<!-- CONTROLES -->
 <div class="top-controls">
   <button onclick="toggleTheme()">🌓</button>
   <button onclick="toggleLang()">🌐</button>
 </div>
 
-<div class="flash" id="flash"></div>
+<!-- CRIAR NOTA -->
+<div class="box">
+  <h2 id="t_title">🔐 Criar mensagem secreta</h2>
 
-<!-- CREATE -->
-<div class="box" id="create">
-<h2 id="t_create">🔐 Criar mensagem secreta</h2>
-<textarea id="text" placeholder=""></textarea>
-<button onclick="createNote()" id="t_create_btn"></button>
+  <textarea id="text" placeholder=""></textarea>
 
-<div id="linkBox" style="display:none">
-  <div class="link" id="result"></div>
-  <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
-</div>
+  <button onclick="createNote()" id="t_create"></button>
 
-<div class="footer">
-<span id="t_created"></span>
-<a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-<div class="legal" id="t_legal"></div>
-</div>
-</div>
+  <div id="linkBox" style="display:none">
+    <div class="link" id="result"></div>
+    <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
+  </div>
 
-<!-- BREAK -->
-<div class="box" id="breaker" style="display:none">
-<h2 id="t_protected"></h2>
-<p id="t_warning"></p>
-<button class="danger" onclick="breakNote()" id="t_break"></button>
-<button onclick="goCreate()" id="t_new"></button>
-</div>
+  <!-- BOTÕES DE NAVEGAÇÃO -->
+  <div style="margin-top:16px">
+    <button onclick="location.href='premium.html'">⭐ Criar nota premium</button>
+    <button class="secondary" onclick="location.href='about.html'">
+      ℹ️ Como funciona
+    </button>
+  </div>
 
-<!-- VIEW -->
-<div class="box" id="view" style="display:none">
-<h2 id="t_message"></h2>
-<p id="message"></p>
-<div class="time" id="destroyTime"></div>
-<button onclick="goCreate()" id="t_new2"></button>
+  <div class="footer">
+    <span id="t_created"></span>
+    <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    <div class="legal" id="t_legal"></div>
+  </div>
 </div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {getFirestore,doc,setDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
-apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-authDomain:"privinote.firebaseapp.com",
-projectId:"privinote",
-storageBucket:"privinote.firebasestorage.app",
-messagingSenderId:"583662739248",
-appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
+  apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+  authDomain:"privinote.firebaseapp.com",
+  projectId:"privinote",
+  storageBucket:"privinote.firebasestorage.app",
+  messagingSenderId:"583662739248",
+  appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
 };
 
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
+/* TEXTOS */
 const texts={
 pt:{
-create:"🔐 Criar mensagem secreta",
+title:"🔐 Criar mensagem secreta",
 placeholder:"Digite sua mensagem secreta...",
-createBtn:"Criar link secreto",
+create:"Criar link secreto",
 copy:"📋 Copiar link",
 created:"Criado por ",
-legal:"Não utilize para atividades ilegais.",
-protected:"⚠️ Mensagem protegida",
-warning:"Ao quebrar, a mensagem será destruída.",
-break:"💣 Quebrar nota",
-new:"➕ Criar nova nota",
-msg:"📩 Mensagem secreta",
-destroyed:"🕒 Nota destruída em: "
+legal:"Não utilize para atividades ilegais."
 },
 en:{
-create:"🔐 Create secret message",
+title:"🔐 Create secret message",
 placeholder:"Type your secret message...",
-createBtn:"Create secret link",
+create:"Create secret link",
 copy:"📋 Copy link",
 created:"Created by ",
-legal:"Do not use for illegal activities.",
-protected:"⚠️ Protected message",
-warning:"Once broken, the message will be destroyed.",
-break:"💣 Break note",
-new:"➕ Create new note",
-msg:"📩 Secret message",
-destroyed:"🕒 Note destroyed at: "
+legal:"Do not use for illegal activities."
 }
 };
 
@@ -240,18 +199,12 @@ let lang=localStorage.getItem("lang")||"pt";
 
 function applyLang(){
 const t=texts[lang];
-document.getElementById("t_create").innerText=t.create;
+document.getElementById("t_title").innerText=t.title;
 document.getElementById("text").placeholder=t.placeholder;
-document.getElementById("t_create_btn").innerText=t.createBtn;
+document.getElementById("t_create").innerText=t.create;
 document.getElementById("t_copy").innerText=t.copy;
 document.getElementById("t_created").innerText=t.created;
 document.getElementById("t_legal").innerText=t.legal;
-document.getElementById("t_protected").innerText=t.protected;
-document.getElementById("t_warning").innerText=t.warning;
-document.getElementById("t_break").innerText=t.break;
-document.getElementById("t_new").innerText=t.new;
-document.getElementById("t_new2").innerText=t.new;
-document.getElementById("t_message").innerText=t.msg;
 }
 applyLang();
 
@@ -263,59 +216,32 @@ applyLang();
 
 window.toggleTheme=()=>{
 document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+localStorage.setItem("theme",
+document.body.classList.contains("light")?"light":"dark");
 };
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
+if(localStorage.getItem("theme")==="light")
+document.body.classList.add("light");
 
-const params=new URLSearchParams(location.search);
-const id=params.get("id");
-const create=document.getElementById("create");
-const breaker=document.getElementById("breaker");
-const view=document.getElementById("view");
-const msg=document.getElementById("message");
-const timeEl=document.getElementById("destroyTime");
-const flash=document.getElementById("flash");
-
-if(id){create.style.display="none";breaker.style.display="block";}
-
-function formatDate(ts){
-const d=new Date(ts);
-return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-}
-
-window.breakNote=async()=>{
-flash.classList.add("active");
-setTimeout(async()=>{
-breaker.style.display="none";
-view.style.display="block";
-flash.classList.remove("active");
-
-const ref=doc(db,"notes",id);
-const snap=await getDoc(ref);
-const now=Date.now();
-
-if(!snap.exists()){
-msg.innerText="❌";
-timeEl.innerText="";
-}else{
-msg.innerText=snap.data().text;
-timeEl.innerText=texts[lang].destroyed+formatDate(now);
-await deleteDoc(ref);
-}
-},500);
-};
-
+/* FUNÇÕES */
 window.createNote=async()=>{
 const text=document.getElementById("text").value.trim();
-if(!text)return alert("...");
+if(!text) return alert("Digite algo");
+
 const id=Math.random().toString(36).substring(2,10);
-await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
-document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
+await setDoc(doc(db,"notes",id),{
+text,
+createdAt:Date.now()
+});
+
+document.getElementById("result").innerText=
+`${location.origin}${location.pathname}?id=${id}`;
+
 document.getElementById("linkBox").style.display="block";
 };
 
-window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
-window.goCreate=()=>location.href=location.pathname;
+window.copyLink=()=>{
+navigator.clipboard.writeText(result.innerText);
+};
 </script>
 
 </body>
