@@ -7,21 +7,20 @@
 
 <style>
 :root{
-  --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  --bg-light: linear-gradient(135deg,#f5f7fa,#c3cfe2);
-  --box-dark: rgba(0,0,0,.65);
-  --box-light: rgba(255,255,255,.92);
+  --bg-dark:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  --bg-light:linear-gradient(135deg,#f5f7fa,#c3cfe2);
+  --box-dark:rgba(0,0,0,.65);
+  --box-light:rgba(255,255,255,.9);
   --text-dark:#fff;
-  --text-light:#111;
-  --accent:#00c6ff;
+  --text-light:#000;
 }
 
 body{
   margin:0;
-  font-family:"Segoe UI",Arial,sans-serif;
+  font-family:Arial,sans-serif;
   background:var(--bg-dark);
   color:var(--text-dark);
-  height:100vh;
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -35,159 +34,113 @@ body.light{
 
 .box{
   background:var(--box-dark);
-  padding:26px;
-  border-radius:20px;
-  max-width:440px;
+  padding:24px;
+  border-radius:16px;
+  max-width:420px;
   width:100%;
   text-align:center;
-  box-shadow:0 25px 50px rgba(0,0,0,.45);
-  animation:slide .5s ease;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  animation:fade .5s ease;
 }
 
 body.light .box{background:var(--box-light);}
 
-@keyframes slide{
-  from{transform:translateY(30px);opacity:0}
-  to{transform:none;opacity:1}
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1}
 }
 
-textarea{
+textarea,input{
   width:100%;
-  height:120px;
-  border-radius:14px;
+  padding:12px;
+  border-radius:10px;
   border:none;
-  padding:14px;
   font-size:16px;
-  outline:none;
+  margin-top:8px;
 }
 
 button{
   width:100%;
-  padding:14px;
+  padding:12px;
   border:none;
-  border-radius:14px;
+  border-radius:12px;
   font-size:16px;
   cursor:pointer;
   margin-top:10px;
   background:linear-gradient(135deg,#00c6ff,#0072ff);
   color:#fff;
-  transition:.25s;
 }
 
-button:hover{
-  transform:scale(1.05);
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
-}
-
-.danger{
+button.alt{
   background:linear-gradient(135deg,#ff416c,#ff4b2b);
-  font-weight:bold;
-}
-
-.copy-btn{
-  background:#00ffcc;
-  color:#000;
-  font-weight:bold;
-}
-
-.link{
-  word-break:break-all;
-  font-size:14px;
-  color:#00ffcc;
-  margin-top:12px;
 }
 
 .footer{
-  margin-top:18px;
+  margin-top:14px;
   font-size:12px;
-  opacity:.75;
+  opacity:.7;
 }
 
-.footer a{color:var(--accent);text-decoration:none;font-weight:bold}
+.footer a{color:#00c6ff;text-decoration:none}
 
-.legal{font-size:11px;opacity:.55;margin-top:6px}
-
-.top-controls{
+/* TOGGLE */
+.toggle{
   position:fixed;
   top:15px;
   right:15px;
-  display:flex;
-  gap:8px;
+  background:none;
+  border:none;
+  font-size:20px;
+  cursor:pointer;
 }
 
-.top-controls button{
-  width:auto;
-  padding:8px 12px;
-  font-size:14px;
-  border-radius:10px;
+/* PRÊMIO */
+.prize-img{
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  border:4px solid #fff;
+  object-fit:cover;
+  margin:15px auto;
+  box-shadow:0 0 20px rgba(0,0,0,.3);
 }
 
-.flash{
+.confetti{
   position:fixed;
-  inset:0;
-  background:#fff;
-  opacity:0;
-  pointer-events:none;
+  width:8px;
+  height:8px;
+  animation:fall linear infinite;
 }
 
-.flash.active{animation:flash .5s}
-
-@keyframes flash{
-  0%{opacity:0}
-  30%{opacity:1}
-  100%{opacity:0}
-}
-
-.time{
-  margin-top:12px;
-  font-size:13px;
-  opacity:.75;
+@keyframes fall{
+  from{transform:translateY(-10vh)}
+  to{transform:translateY(110vh)}
 }
 </style>
 </head>
-
 <body>
 
-<div class="top-controls">
-  <button onclick="toggleTheme()">🌓</button>
-  <button onclick="toggleLang()">🌐</button>
-</div>
+<button class="toggle" onclick="toggleTheme()">🌙</button>
 
-<div class="flash" id="flash"></div>
-
-<!-- CREATE -->
+<!-- CRIAR -->
 <div class="box" id="create">
-<h2 id="t_create">🔐 Criar mensagem secreta</h2>
-<textarea id="text" placeholder=""></textarea>
-<button onclick="createNote()" id="t_create_btn"></button>
+<h2>🔐 Criar nota</h2>
 
-<div id="linkBox" style="display:none">
-  <div class="link" id="result"></div>
-  <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
-</div>
+<textarea id="text" placeholder="Mensagem secreta"></textarea>
+
+<input id="img" placeholder="URL da imagem (modo prêmio)">
+<input id="btn" placeholder="Link do botão (Telegram)">
+
+<button onclick="createNote()">Criar nota normal</button>
+<button class="alt" onclick="createPrize()">Criar nota prêmio</button>
 
 <div class="footer">
-<span id="t_created"></span>
-<a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-<div class="legal" id="t_legal"></div>
+Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
 </div>
-</div>
-
-<!-- BREAK -->
-<div class="box" id="breaker" style="display:none">
-<h2 id="t_protected"></h2>
-<p id="t_warning"></p>
-<button class="danger" onclick="breakNote()" id="t_break"></button>
-<button onclick="goCreate()" id="t_new"></button>
 </div>
 
 <!-- VIEW -->
-<div class="box" id="view" style="display:none">
-<h2 id="t_message"></h2>
-<p id="message"></p>
-<div class="time" id="destroyTime"></div>
-<button onclick="goCreate()" id="t_new2"></button>
-</div>
+<div class="box" id="view" style="display:none"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -205,117 +158,77 @@ appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
-const texts={
-pt:{
-create:"🔐 Criar mensagem secreta",
-placeholder:"Digite sua mensagem secreta...",
-createBtn:"Criar link secreto",
-copy:"📋 Copiar link",
-created:"Criado por ",
-legal:"Não utilize para atividades ilegais.",
-protected:"⚠️ Mensagem protegida",
-warning:"Ao quebrar, a mensagem será destruída.",
-break:"💣 Quebrar nota",
-new:"➕ Criar nova nota",
-msg:"📩 Mensagem secreta",
-destroyed:"🕒 Nota destruída em: "
-},
-en:{
-create:"🔐 Create secret message",
-placeholder:"Type your secret message...",
-createBtn:"Create secret link",
-copy:"📋 Copy link",
-created:"Created by ",
-legal:"Do not use for illegal activities.",
-protected:"⚠️ Protected message",
-warning:"Once broken, the message will be destroyed.",
-break:"💣 Break note",
-new:"➕ Create new note",
-msg:"📩 Secret message",
-destroyed:"🕒 Note destroyed at: "
-}
-};
-
-let lang=localStorage.getItem("lang")||"pt";
-
-function applyLang(){
-const t=texts[lang];
-document.getElementById("t_create").innerText=t.create;
-document.getElementById("text").placeholder=t.placeholder;
-document.getElementById("t_create_btn").innerText=t.createBtn;
-document.getElementById("t_copy").innerText=t.copy;
-document.getElementById("t_created").innerText=t.created;
-document.getElementById("t_legal").innerText=t.legal;
-document.getElementById("t_protected").innerText=t.protected;
-document.getElementById("t_warning").innerText=t.warning;
-document.getElementById("t_break").innerText=t.break;
-document.getElementById("t_new").innerText=t.new;
-document.getElementById("t_new2").innerText=t.new;
-document.getElementById("t_message").innerText=t.msg;
-}
-applyLang();
-
-window.toggleLang=()=>{
-lang=lang==="pt"?"en":"pt";
-localStorage.setItem("lang",lang);
-applyLang();
-};
-
-window.toggleTheme=()=>{
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
-};
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
-
 const params=new URLSearchParams(location.search);
 const id=params.get("id");
+
 const create=document.getElementById("create");
-const breaker=document.getElementById("breaker");
 const view=document.getElementById("view");
-const msg=document.getElementById("message");
-const timeEl=document.getElementById("destroyTime");
-const flash=document.getElementById("flash");
 
-if(id){create.style.display="none";breaker.style.display="block";}
-
-function formatDate(ts){
-const d=new Date(ts);
-return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-}
-
-window.breakNote=async()=>{
-flash.classList.add("active");
-setTimeout(async()=>{
-breaker.style.display="none";
+if(id){
+create.style.display="none";
 view.style.display="block";
-flash.classList.remove("active");
 
 const ref=doc(db,"notes",id);
 const snap=await getDoc(ref);
-const now=Date.now();
 
 if(!snap.exists()){
-msg.innerText="❌";
-timeEl.innerText="";
+view.innerHTML="❌ Nota destruída";
 }else{
-msg.innerText=snap.data().text;
-timeEl.innerText=texts[lang].destroyed+formatDate(now);
+const d=snap.data();
+
+if(d.type==="prize"){
+view.innerHTML=`
+<h2>🎉 Você ganhou!</h2>
+<img src="${d.image}" class="prize-img">
+<p>${d.text}</p>
+<a href="${d.button}" target="_blank">
+<button>Resgatar prêmio</button>
+</a>
+`;
+confetti();
+}else{
+view.innerHTML=`<p>${d.text}</p>`;
+}
+
 await deleteDoc(ref);
 }
-},500);
-};
+}
+
+function confetti(){
+for(let i=0;i<80;i++){
+const c=document.createElement("div");
+c.className="confetti";
+c.style.left=Math.random()*100+"vw";
+c.style.background=["#ff0","#0ff","#f0f","#0f0","#fff"][Math.floor(Math.random()*5)];
+c.style.animationDuration=(Math.random()*3+2)+"s";
+document.body.appendChild(c);
+}
+}
 
 window.createNote=async()=>{
-const text=document.getElementById("text").value.trim();
-if(!text)return alert("...");
-const id=Math.random().toString(36).substring(2,10);
-await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
-document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
-document.getElementById("linkBox").style.display="block";
-};
+const text=document.getElementById("text").value;
+const id=Math.random().toString(36).slice(2,10);
+await setDoc(doc(db,"notes",id),{type:"text",text});
+alert("Link: "+location.origin+location.pathname+"?id="+id);
+}
 
-window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
-window.goCreate=()=>location.href=location.pathname;
+window.createPrize=async()=>{
+const id=Math.random().toString(36).slice(2,10);
+await setDoc(doc(db,"notes",id),{
+type:"prize",
+text:document.getElementById("text").value,
+image:document.getElementById("img").value,
+button:document.getElementById("btn").value
+});
+alert("Link: "+location.origin+location.pathname+"?id="+id);
+}
+
+// THEME
+function toggleTheme(){
+document.body.classList.toggle("light");
+localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+}
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 </script>
 
 </body>
