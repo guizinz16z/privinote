@@ -10,7 +10,7 @@
   --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   --bg-light: linear-gradient(135deg,#f5f7fa,#c3cfe2);
   --box-dark: rgba(0,0,0,.65);
-  --box-light: rgba(255,255,255,.9);
+  --box-light: rgba(255,255,255,.92);
   --text-dark:#fff;
   --text-light:#111;
   --accent:#00c6ff;
@@ -25,7 +25,6 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden;
   transition:.4s;
 }
 
@@ -37,13 +36,12 @@ body.light{
 .box{
   background:var(--box-dark);
   padding:26px;
-  border-radius:18px;
-  max-width:430px;
+  border-radius:20px;
+  max-width:440px;
   width:100%;
   text-align:center;
   box-shadow:0 25px 50px rgba(0,0,0,.45);
   animation:slide .5s ease;
-  z-index:2;
 }
 
 body.light .box{background:var(--box-light);}
@@ -53,24 +51,21 @@ body.light .box{background:var(--box-light);}
   to{transform:none;opacity:1}
 }
 
-h2{margin-top:0}
-
 textarea{
   width:100%;
   height:120px;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   padding:14px;
   font-size:16px;
-  resize:none;
   outline:none;
 }
 
 button{
   width:100%;
-  padding:13px;
+  padding:14px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   font-size:16px;
   cursor:pointer;
   margin-top:10px;
@@ -81,7 +76,7 @@ button{
 
 button:hover{
   transform:scale(1.05);
-  box-shadow:0 8px 20px rgba(0,0,0,.3);
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
 
 .danger{
@@ -112,25 +107,27 @@ button:hover{
 
 .legal{font-size:11px;opacity:.55;margin-top:6px}
 
-/* TOGGLE */
-.toggle{
+.top-controls{
   position:fixed;
   top:15px;
   right:15px;
-  z-index:5;
-  font-size:20px;
-  background:none;
-  border:none;
-  cursor:pointer;
+  display:flex;
+  gap:8px;
 }
 
-/* EXPLOSÃO */
+.top-controls button{
+  width:auto;
+  padding:8px 12px;
+  font-size:14px;
+  border-radius:10px;
+}
+
 .flash{
   position:fixed;
   inset:0;
   background:#fff;
   opacity:0;
-  z-index:1;
+  pointer-events:none;
 }
 
 .flash.active{animation:flash .5s}
@@ -139,16 +136,6 @@ button:hover{
   0%{opacity:0}
   30%{opacity:1}
   100%{opacity:0}
-}
-
-.shake{animation:shake .4s}
-
-@keyframes shake{
-  0%{transform:translate(0)}
-  25%{transform:translate(-6px,6px)}
-  50%{transform:translate(6px,-6px)}
-  75%{transform:translate(-6px,6px)}
-  100%{transform:translate(0)}
 }
 
 .time{
@@ -161,40 +148,45 @@ button:hover{
 
 <body>
 
-<button class="toggle" onclick="toggleTheme()">🌙</button>
+<div class="top-controls">
+  <button onclick="toggleTheme()">🌓</button>
+  <button onclick="toggleLang()">🌐</button>
+</div>
+
 <div class="flash" id="flash"></div>
 
-<!-- CRIAR -->
+<!-- CREATE -->
 <div class="box" id="create">
-<h2>🔐 Criar mensagem secreta</h2>
-<textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
-<button onclick="createNote()">Criar link secreto</button>
+<h2 id="t_create">🔐 Criar mensagem secreta</h2>
+<textarea id="text" placeholder=""></textarea>
+<button onclick="createNote()" id="t_create_btn"></button>
 
 <div id="linkBox" style="display:none">
   <div class="link" id="result"></div>
-  <button class="copy-btn" onclick="copyLink()">📋 Copiar link</button>
+  <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
 </div>
 
 <div class="footer">
-Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-<div class="legal">Não utilize para atividades ilegais.</div>
+<span id="t_created"></span>
+<a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+<div class="legal" id="t_legal"></div>
 </div>
 </div>
 
-<!-- QUEBRA -->
+<!-- BREAK -->
 <div class="box" id="breaker" style="display:none">
-<h2>⚠️ Mensagem protegida</h2>
-<p>Ao quebrar, a mensagem será destruída permanentemente.</p>
-<button class="danger" onclick="breakNote()">💣 Quebrar nota</button>
-<button onclick="goCreate()">➕ Criar nova nota</button>
+<h2 id="t_protected"></h2>
+<p id="t_warning"></p>
+<button class="danger" onclick="breakNote()" id="t_break"></button>
+<button onclick="goCreate()" id="t_new"></button>
 </div>
 
 <!-- VIEW -->
 <div class="box" id="view" style="display:none">
-<h2>📩 Mensagem secreta</h2>
+<h2 id="t_message"></h2>
 <p id="message"></p>
 <div class="time" id="destroyTime"></div>
-<button onclick="goCreate()">➕ Criar nova nota</button>
+<button onclick="goCreate()" id="t_new2"></button>
 </div>
 
 <script type="module">
@@ -213,9 +205,70 @@ appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
+const texts={
+pt:{
+create:"🔐 Criar mensagem secreta",
+placeholder:"Digite sua mensagem secreta...",
+createBtn:"Criar link secreto",
+copy:"📋 Copiar link",
+created:"Criado por ",
+legal:"Não utilize para atividades ilegais.",
+protected:"⚠️ Mensagem protegida",
+warning:"Ao quebrar, a mensagem será destruída.",
+break:"💣 Quebrar nota",
+new:"➕ Criar nova nota",
+msg:"📩 Mensagem secreta",
+destroyed:"🕒 Nota destruída em: "
+},
+en:{
+create:"🔐 Create secret message",
+placeholder:"Type your secret message...",
+createBtn:"Create secret link",
+copy:"📋 Copy link",
+created:"Created by ",
+legal:"Do not use for illegal activities.",
+protected:"⚠️ Protected message",
+warning:"Once broken, the message will be destroyed.",
+break:"💣 Break note",
+new:"➕ Create new note",
+msg:"📩 Secret message",
+destroyed:"🕒 Note destroyed at: "
+}
+};
+
+let lang=localStorage.getItem("lang")||"pt";
+
+function applyLang(){
+const t=texts[lang];
+document.getElementById("t_create").innerText=t.create;
+document.getElementById("text").placeholder=t.placeholder;
+document.getElementById("t_create_btn").innerText=t.createBtn;
+document.getElementById("t_copy").innerText=t.copy;
+document.getElementById("t_created").innerText=t.created;
+document.getElementById("t_legal").innerText=t.legal;
+document.getElementById("t_protected").innerText=t.protected;
+document.getElementById("t_warning").innerText=t.warning;
+document.getElementById("t_break").innerText=t.break;
+document.getElementById("t_new").innerText=t.new;
+document.getElementById("t_new2").innerText=t.new;
+document.getElementById("t_message").innerText=t.msg;
+}
+applyLang();
+
+window.toggleLang=()=>{
+lang=lang==="pt"?"en":"pt";
+localStorage.setItem("lang",lang);
+applyLang();
+};
+
+window.toggleTheme=()=>{
+document.body.classList.toggle("light");
+localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+};
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
+
 const params=new URLSearchParams(location.search);
 const id=params.get("id");
-
 const create=document.getElementById("create");
 const breaker=document.getElementById("breaker");
 const view=document.getElementById("view");
@@ -223,60 +276,46 @@ const msg=document.getElementById("message");
 const timeEl=document.getElementById("destroyTime");
 const flash=document.getElementById("flash");
 
-if(id){
-  create.style.display="none";
-  breaker.style.display="block";
-}
+if(id){create.style.display="none";breaker.style.display="block";}
 
 function formatDate(ts){
-  const d=new Date(ts);
-  return d.toLocaleDateString("pt-BR")+" às "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const d=new Date(ts);
+return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 }
 
 window.breakNote=async()=>{
 flash.classList.add("active");
-document.body.classList.add("shake");
-
 setTimeout(async()=>{
 breaker.style.display="none";
 view.style.display="block";
 flash.classList.remove("active");
-document.body.classList.remove("shake");
 
 const ref=doc(db,"notes",id);
 const snap=await getDoc(ref);
-
-const destroyedAt=Date.now();
+const now=Date.now();
 
 if(!snap.exists()){
-msg.innerText="❌ Mensagem já destruída.";
-timeEl.innerText="🕒 Tentativa em: "+formatDate(destroyedAt);
+msg.innerText="❌";
+timeEl.innerText="";
 }else{
 msg.innerText=snap.data().text;
-timeEl.innerText="🕒 Nota destruída em: "+formatDate(destroyedAt);
+timeEl.innerText=texts[lang].destroyed+formatDate(now);
 await deleteDoc(ref);
 }
 },500);
-}
+};
 
 window.createNote=async()=>{
 const text=document.getElementById("text").value.trim();
-if(!text)return alert("Digite uma mensagem");
+if(!text)return alert("...");
 const id=Math.random().toString(36).substring(2,10);
 await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
 document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
 document.getElementById("linkBox").style.display="block";
-}
+};
 
 window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
 window.goCreate=()=>location.href=location.pathname;
-
-// THEME
-function toggleTheme(){
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
-}
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 </script>
 
 </body>
