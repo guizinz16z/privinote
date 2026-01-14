@@ -1,170 +1,321 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PriviNot</title>
+<title>Privinote</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root {
-  --bg: #0f2027;
-  --card: #111827;
-  --text: #ffffff;
-  --sub: #9ca3af;
-  --primary: #3b82f6;
-  --premium: #f43f5e;
-  --input: #1f2933;
+:root{
+  --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  --bg-light: linear-gradient(135deg,#f5f7fa,#c3cfe2);
+  --box-dark: rgba(0,0,0,.65);
+  --box-light: rgba(255,255,255,.92);
+  --text-dark:#fff;
+  --text-light:#111;
+  --accent:#00c6ff;
 }
 
-body.light {
-  --bg: #f3f4f6;
-  --card: #ffffff;
-  --text: #111827;
-  --sub: #6b7280;
-  --input: #e5e7eb;
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:var(--bg-dark);
+  color:var(--text-dark);
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.4s;
 }
 
-* {
-  box-sizing: border-box;
-  font-family: system-ui, sans-serif;
+body.light{
+  background:var(--bg-light);
+  color:var(--text-light);
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f2027, #203a43);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  color: var(--text);
+.box{
+  background:var(--box-dark);
+  padding:26px;
+  border-radius:20px;
+  max-width:440px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 25px 50px rgba(0,0,0,.45);
+  animation:slide .5s ease;
 }
 
-.card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--card);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.4);
-  animation: fade .4s ease;
+body.light .box{background:var(--box-light);}
+
+@keyframes slide{
+  from{transform:translateY(30px);opacity:0}
+  to{transform:none;opacity:1}
 }
 
-@keyframes fade {
-  from { opacity:0; transform: translateY(10px); }
-  to { opacity:1; transform: translateY(0); }
+textarea{
+  width:100%;
+  height:120px;
+  border-radius:14px;
+  border:none;
+  padding:14px;
+  font-size:16px;
+  outline:none;
 }
 
-h1 {
-  text-align: center;
-  margin: 0;
-  font-size: 22px;
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:10px;
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:#fff;
+  transition:.25s;
 }
 
-p {
-  text-align: center;
-  font-size: 14px;
-  color: var(--sub);
-  margin-bottom: 20px;
+button:hover{
+  transform:scale(1.05);
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
 
-input, textarea {
-  width: 100%;
-  background: var(--input);
-  border: none;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 12px;
-  color: var(--text);
-  font-size: 15px;
+.danger{
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  font-weight:bold;
 }
 
-textarea {
-  resize: none;
-  height: 100px;
+.copy-btn{
+  background:#00ffcc;
+  color:#000;
+  font-weight:bold;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: .2s;
+.link{
+  word-break:break-all;
+  font-size:14px;
+  color:#00ffcc;
+  margin-top:12px;
 }
 
-button:hover {
-  transform: scale(1.02);
+.footer{
+  margin-top:18px;
+  font-size:12px;
+  opacity:.75;
 }
 
-.btn-main {
-  background: var(--primary);
-  color: white;
+.footer a{color:var(--accent);text-decoration:none;font-weight:bold}
+
+.legal{font-size:11px;opacity:.55;margin-top:6px}
+
+.top-controls{
+  position:fixed;
+  top:15px;
+  right:15px;
+  display:flex;
+  gap:8px;
 }
 
-.btn-premium {
-  background: var(--premium);
-  color: white;
-  margin-top: 10px;
+.top-controls button{
+  width:auto;
+  padding:8px 12px;
+  font-size:14px;
+  border-radius:10px;
 }
 
-.options {
-  margin-top: 10px;
+.flash{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  opacity:0;
+  pointer-events:none;
 }
 
-.toggle {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--sub);
-  cursor: pointer;
-  margin: 10px 0;
+.flash.active{animation:flash .5s}
+
+@keyframes flash{
+  0%{opacity:0}
+  30%{opacity:1}
+  100%{opacity:0}
 }
 
-.footer {
-  margin-top: 16px;
-  font-size: 13px;
-  text-align: center;
-  color: var(--sub);
-}
-
-.footer a {
-  color: var(--primary);
-  text-decoration: none;
+.time{
+  margin-top:12px;
+  font-size:13px;
+  opacity:.75;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>🔐 Criar nota secreta</h1>
-  <p>A nota será destruída após ser lida</p>
-
-  <textarea placeholder="Digite sua mensagem secreta..."></textarea>
-
-  <div class="toggle" onclick="toggleOptions()">⚙ Opções avançadas</div>
-
-  <div class="options" id="opts" style="display:none">
-    <input placeholder="URL da imagem (premium)">
-    <input placeholder="Link do botão (Telegram)">
-  </div>
-
-  <button class="btn-main">Criar nota</button>
-
-  <button class="btn-premium">⭐ Criar nota premium</button>
-
-  <div class="footer">
-    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-  </div>
+<div class="top-controls">
+  <button onclick="toggleTheme()">🌓</button>
+  <button onclick="toggleLang()">🌐</button>
 </div>
 
-<script>
-function toggleOptions() {
-  const o = document.getElementById("opts");
-  o.style.display = o.style.display === "none" ? "block" : "none";
+<div class="flash" id="flash"></div>
+
+<!-- CREATE -->
+<div class="box" id="create">
+<h2 id="t_create">🔐 Criar mensagem secreta</h2>
+<textarea id="text" placeholder=""></textarea>
+<button onclick="createNote()" id="t_create_btn"></button>
+
+<div id="linkBox" style="display:none">
+  <div class="link" id="result"></div>
+  <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
+</div>
+
+<div class="footer">
+<span id="t_created"></span>
+<a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+<div class="legal" id="t_legal"></div>
+</div>
+</div>
+
+<!-- BREAK -->
+<div class="box" id="breaker" style="display:none">
+<h2 id="t_protected"></h2>
+<p id="t_warning"></p>
+<button class="danger" onclick="breakNote()" id="t_break"></button>
+<button onclick="goCreate()" id="t_new"></button>
+</div>
+
+<!-- VIEW -->
+<div class="box" id="view" style="display:none">
+<h2 id="t_message"></h2>
+<p id="message"></p>
+<div class="time" id="destroyTime"></div>
+<button onclick="goCreate()" id="t_new2"></button>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+authDomain:"privinote.firebaseapp.com",
+projectId:"privinote",
+storageBucket:"privinote.firebasestorage.app",
+messagingSenderId:"583662739248",
+appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const texts={
+pt:{
+create:"🔐 Criar mensagem secreta",
+placeholder:"Digite sua mensagem secreta...",
+createBtn:"Criar link secreto",
+copy:"📋 Copiar link",
+created:"Criado por ",
+legal:"Não utilize para atividades ilegais.",
+protected:"⚠️ Mensagem protegida",
+warning:"Ao quebrar, a mensagem será destruída.",
+break:"💣 Quebrar nota",
+new:"➕ Criar nova nota",
+msg:"📩 Mensagem secreta",
+destroyed:"🕒 Nota destruída em: "
+},
+en:{
+create:"🔐 Create secret message",
+placeholder:"Type your secret message...",
+createBtn:"Create secret link",
+copy:"📋 Copy link",
+created:"Created by ",
+legal:"Do not use for illegal activities.",
+protected:"⚠️ Protected message",
+warning:"Once broken, the message will be destroyed.",
+break:"💣 Break note",
+new:"➕ Create new note",
+msg:"📩 Secret message",
+destroyed:"🕒 Note destroyed at: "
 }
+};
+
+let lang=localStorage.getItem("lang")||"pt";
+
+function applyLang(){
+const t=texts[lang];
+document.getElementById("t_create").innerText=t.create;
+document.getElementById("text").placeholder=t.placeholder;
+document.getElementById("t_create_btn").innerText=t.createBtn;
+document.getElementById("t_copy").innerText=t.copy;
+document.getElementById("t_created").innerText=t.created;
+document.getElementById("t_legal").innerText=t.legal;
+document.getElementById("t_protected").innerText=t.protected;
+document.getElementById("t_warning").innerText=t.warning;
+document.getElementById("t_break").innerText=t.break;
+document.getElementById("t_new").innerText=t.new;
+document.getElementById("t_new2").innerText=t.new;
+document.getElementById("t_message").innerText=t.msg;
+}
+applyLang();
+
+window.toggleLang=()=>{
+lang=lang==="pt"?"en":"pt";
+localStorage.setItem("lang",lang);
+applyLang();
+};
+
+window.toggleTheme=()=>{
+document.body.classList.toggle("light");
+localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+};
+if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
+
+const params=new URLSearchParams(location.search);
+const id=params.get("id");
+const create=document.getElementById("create");
+const breaker=document.getElementById("breaker");
+const view=document.getElementById("view");
+const msg=document.getElementById("message");
+const timeEl=document.getElementById("destroyTime");
+const flash=document.getElementById("flash");
+
+if(id){create.style.display="none";breaker.style.display="block";}
+
+function formatDate(ts){
+const d=new Date(ts);
+return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+}
+
+window.breakNote=async()=>{
+flash.classList.add("active");
+setTimeout(async()=>{
+breaker.style.display="none";
+view.style.display="block";
+flash.classList.remove("active");
+
+const ref=doc(db,"notes",id);
+const snap=await getDoc(ref);
+const now=Date.now();
+
+if(!snap.exists()){
+msg.innerText="❌";
+timeEl.innerText="";
+}else{
+msg.innerText=snap.data().text;
+timeEl.innerText=texts[lang].destroyed+formatDate(now);
+await deleteDoc(ref);
+}
+},500);
+};
+
+window.createNote=async()=>{
+const text=document.getElementById("text").value.trim();
+if(!text)return alert("...");
+const id=Math.random().toString(36).substring(2,10);
+await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
+document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
+document.getElementById("linkBox").style.display="block";
+};
+
+window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
+window.goCreate=()=>location.href=location.pathname;
 </script>
 
 </body>
