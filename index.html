@@ -2,185 +2,128 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Privinote</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privinote — Mensagem Secreta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  --bg-light: linear-gradient(135deg,#f5f7fa,#c3cfe2);
-  --box-dark: rgba(0,0,0,.65);
-  --box-light: rgba(255,255,255,.92);
-  --text-dark:#fff;
-  --text-light:#111;
-  --accent:#00c6ff;
+:root {
+  --bg: #0e1a22;
+  --card: #111d26;
+  --accent: #4da3ff;
+  --text: #ffffff;
 }
 
-body{
-  margin:0;
-  font-family:"Segoe UI",Arial,sans-serif;
-  background:var(--bg-dark);
-  color:var(--text-dark);
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(120deg,#0e1a22,#1b3442);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
 }
 
-body.light{
-  background:var(--bg-light);
-  color:var(--text-light);
+.card {
+  background: var(--card);
+  width: 90%;
+  max-width: 420px;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  animation: fadeIn .5s ease;
 }
 
-.box{
-  background:var(--box-dark);
-  padding:26px;
-  border-radius:20px;
-  max-width:440px;
-  width:100%;
-  text-align:center;
-  box-shadow:0 25px 50px rgba(0,0,0,.45);
+h2 {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-body.light .box{background:var(--box-light);}
-
-textarea{
-  width:100%;
-  height:120px;
-  border-radius:14px;
-  border:none;
-  padding:14px;
-  font-size:16px;
+textarea {
+  width: 100%;
+  height: 140px;
+  border-radius: 12px;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  outline: none;
 }
 
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:14px;
-  font-size:16px;
-  cursor:pointer;
-  margin-top:10px;
-  background:linear-gradient(135deg,#00c6ff,#0072ff);
-  color:#fff;
+button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg,#4da3ff,#2b78ff);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-.secondary{background:#444}
+button:hover { opacity: .9 }
 
-.link{
-  word-break:break-all;
-  font-size:14px;
-  color:#00ffcc;
-  margin-top:12px;
+#linkBox {
+  display: none;
+  margin-top: 15px;
 }
 
-.top-controls{
-  position:fixed;
-  top:15px;
-  right:15px;
+#linkBox input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
 }
 
-.top-controls button{
-  padding:8px 12px;
-  border-radius:10px;
+.small {
+  text-align: center;
+  font-size: 13px;
+  opacity: .6;
+  margin-top: 10px;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(10px)}
+  to {opacity:1; transform:none}
 }
 </style>
 </head>
 
 <body>
 
-<div class="top-controls">
-  <button onclick="toggleTheme()">🌓</button>
+<div class="card">
+  <h2>🔐 Criar mensagem secreta</h2>
+
+  <textarea id="msg" placeholder="Digite sua mensagem secreta..."></textarea>
+
+  <button onclick="criar()">Criar link secreto</button>
+
+  <div id="linkBox">
+    <input id="link" readonly>
+    <button onclick="copiar()">📋 Copiar link</button>
+  </div>
+
+  <div class="small">Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a></div>
 </div>
 
-<div class="box" id="app"></div>
+<script>
+function criar() {
+  const msg = document.getElementById("msg").value.trim();
+  if(!msg) return alert("Digite uma mensagem");
 
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, setDoc, getDoc, deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  const id = Math.random().toString(36).substring(2,10);
+  localStorage.setItem("note_"+id, msg);
 
-const firebaseConfig={
-  apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-  authDomain:"privinote.firebaseapp.com",
-  projectId:"privinote"
-};
+  const url = location.origin + location.pathname.replace("index.html","") + "view.html?id=" + id;
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-
-const params=new URLSearchParams(location.search);
-const noteId=params.get("id");
-const appBox=document.getElementById("app");
-
-/* ===== QUEBRAR NOTA ===== */
-if(noteId){
-  appBox.innerHTML=`
-    <h2>🔓 Quebrar nota</h2>
-    <button id="open">Quebrar nota</button>
-    <button class="secondary" onclick="goHome()">🔙 Criar nova nota</button>
-  `;
-
-  document.getElementById("open").onclick=async()=>{
-    const ref=doc(db,"notes",noteId);
-    const snap=await getDoc(ref);
-
-    if(!snap.exists()){
-      appBox.innerHTML=`
-        <h2>❌ Nota inexistente ou já quebrada</h2>
-        <button onclick="goHome()">🔙 Criar nova nota</button>
-      `;
-      return;
-    }
-
-    const {text}=snap.data();
-    await deleteDoc(ref);
-
-    appBox.innerHTML=`
-      <h2>💥 Nota quebrada</h2>
-      <div style="margin-top:12px;font-size:18px">${text}</div>
-      <p style="margin-top:14px;opacity:.7">Essa nota foi destruída.</p>
-      <button onclick="goHome()">🔙 Criar nova nota</button>
-    `;
-  };
-
-}
-/* ===== CRIAR NOTA ===== */
-else{
-  appBox.innerHTML=`
-    <h2>🔐 Criar mensagem secreta</h2>
-    <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
-    <button id="create">Criar link secreto</button>
-    <div id="linkBox" style="display:none">
-      <div class="link" id="result"></div>
-    </div>
-    <p style="margin-top:12px;font-size:12px;opacity:.6">
-      Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-    </p>
-  `;
-
-  document.getElementById("create").onclick=async()=>{
-    const text=document.getElementById("text").value.trim();
-    if(!text) return alert("Digite algo");
-
-    const id=Math.random().toString(36).slice(2,10);
-    await setDoc(doc(db,"notes",id),{text});
-
-    const link=`${location.origin}${location.pathname}?id=${id}`;
-    document.getElementById("result").innerText=link;
-    document.getElementById("linkBox").style.display="block";
-  };
+  document.getElementById("link").value = url;
+  document.getElementById("linkBox").style.display = "block";
 }
 
-/* ===== UTIL ===== */
-window.goHome=()=>{
-  location.href=location.pathname;
-};
-
-window.toggleTheme=()=>{
-  document.body.classList.toggle("light");
-};
+function copiar() {
+  navigator.clipboard.writeText(document.getElementById("link").value);
+  alert("Link copiado!");
+}
 </script>
 
 </body>
