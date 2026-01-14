@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Privinote • Abrir nota</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  background:#0f2027;
+  color:#fff;
+  font-family:sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  background:#111;
+  padding:20px;
+  border-radius:15px;
+  width:90%;
+  max-width:400px;
+  text-align:center;
+}
+button{
+  margin-top:15px;
+  padding:12px;
+  width:100%;
+  border:none;
+  border-radius:10px;
+  background:#3fa9f5;
+  color:#fff;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h2>🔐 Nota secreta</h2>
+  <p id="msg">Clique para quebrar a nota</p>
+  <button onclick="abrir()">Quebrar nota</button>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+function abrir(){
+  if(!id){
+    document.getElementById("msg").innerText = "Link inválido";
+    return;
+  }
+
+  // EXEMPLO (AJUSTE AQUI PARA O SEU STORAGE)
+  const texto = localStorage.getItem("note_"+id);
+
+  if(!texto){
+    document.getElementById("msg").innerText = "Nota já foi destruída ou não existe.";
+    return;
+  }
+
+  document.getElementById("msg").innerText = texto;
+  localStorage.removeItem("note_"+id);
+}
+</script>
+</body>
+</html>
