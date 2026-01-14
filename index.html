@@ -58,7 +58,6 @@ textarea{
   border:none;
   padding:14px;
   font-size:16px;
-  outline:none;
 }
 
 button{
@@ -71,23 +70,9 @@ button{
   margin-top:10px;
   background:linear-gradient(135deg,#00c6ff,#0072ff);
   color:#fff;
-  transition:.25s;
 }
 
-button:hover{
-  transform:scale(1.05);
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
-}
-
-.secondary{
-  background:#444;
-}
-
-.copy-btn{
-  background:#00ffcc;
-  color:#000;
-  font-weight:bold;
-}
+.secondary{background:#444}
 
 .link{
   word-break:break-all;
@@ -95,16 +80,6 @@ button:hover{
   color:#00ffcc;
   margin-top:12px;
 }
-
-.footer{
-  margin-top:18px;
-  font-size:12px;
-  opacity:.75;
-}
-
-.footer a{color:var(--accent);text-decoration:none;font-weight:bold}
-
-.legal{font-size:11px;opacity:.55;margin-top:6px}
 
 .top-controls{
   position:fixed;
@@ -117,7 +92,6 @@ button:hover{
 .top-controls button{
   width:auto;
   padding:8px 12px;
-  font-size:14px;
   border-radius:10px;
 }
 </style>
@@ -125,122 +99,88 @@ button:hover{
 
 <body>
 
-<!-- CONTROLES -->
 <div class="top-controls">
   <button onclick="toggleTheme()">🌓</button>
-  <button onclick="toggleLang()">🌐</button>
 </div>
 
-<!-- CRIAR NOTA -->
-<div class="box">
-  <h2 id="t_title">🔐 Criar mensagem secreta</h2>
-
-  <textarea id="text" placeholder=""></textarea>
-
-  <button onclick="createNote()" id="t_create"></button>
-
-  <div id="linkBox" style="display:none">
-    <div class="link" id="result"></div>
-    <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
-  </div>
-
-  <!-- BOTÕES DE NAVEGAÇÃO -->
-  <div style="margin-top:16px">
-    <button onclick="location.href='premium.html'">⭐ Criar nota premium</button>
-    <button class="secondary" onclick="location.href='about.html'">
-      ℹ️ Como funciona
-    </button>
-  </div>
-
-  <div class="footer">
-    <span id="t_created"></span>
-    <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-    <div class="legal" id="t_legal"></div>
-  </div>
-</div>
+<div class="box" id="app"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getFirestore, doc, setDoc, getDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
   authDomain:"privinote.firebaseapp.com",
-  projectId:"privinote",
-  storageBucket:"privinote.firebasestorage.app",
-  messagingSenderId:"583662739248",
-  appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
+  projectId:"privinote"
 };
 
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
-/* TEXTOS */
-const texts={
-pt:{
-title:"🔐 Criar mensagem secreta",
-placeholder:"Digite sua mensagem secreta...",
-create:"Criar link secreto",
-copy:"📋 Copiar link",
-created:"Criado por ",
-legal:"Não utilize para atividades ilegais."
-},
-en:{
-title:"🔐 Create secret message",
-placeholder:"Type your secret message...",
-create:"Create secret link",
-copy:"📋 Copy link",
-created:"Created by ",
-legal:"Do not use for illegal activities."
+const params=new URLSearchParams(location.search);
+const noteId=params.get("id");
+const appBox=document.getElementById("app");
+
+/* ===== QUEBRAR NOTA ===== */
+if(noteId){
+  appBox.innerHTML=`
+    <h2>🔓 Quebrar nota</h2>
+    <button id="open">Quebrar nota</button>
+  `;
+
+  document.getElementById("open").onclick=async()=>{
+    const ref=doc(db,"notes",noteId);
+    const snap=await getDoc(ref);
+
+    if(!snap.exists()){
+      appBox.innerHTML="<h2>❌ Nota inexistente ou já quebrada</h2>";
+      return;
+    }
+
+    const {text}=snap.data();
+    await deleteDoc(ref);
+
+    appBox.innerHTML=`
+      <h2>💥 Nota quebrada</h2>
+      <div style="margin-top:12px;font-size:18px">${text}</div>
+      <p style="margin-top:14px;opacity:.7">Essa nota foi destruída.</p>
+    `;
+  };
+
 }
-};
+/* ===== CRIAR NOTA ===== */
+else{
+  appBox.innerHTML=`
+    <h2>🔐 Criar mensagem secreta</h2>
+    <textarea id="text" placeholder="Digite sua mensagem secreta..."></textarea>
+    <button id="create">Criar link secreto</button>
+    <div id="linkBox" style="display:none">
+      <div class="link" id="result"></div>
+    </div>
+    <button class="secondary" onclick="location.href='about.html'">ℹ️ Como funciona</button>
+    <p style="margin-top:12px;font-size:12px;opacity:.6">
+      Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+    </p>
+  `;
 
-let lang=localStorage.getItem("lang")||"pt";
+  document.getElementById("create").onclick=async()=>{
+    const text=document.getElementById("text").value.trim();
+    if(!text) return alert("Digite algo");
 
-function applyLang(){
-const t=texts[lang];
-document.getElementById("t_title").innerText=t.title;
-document.getElementById("text").placeholder=t.placeholder;
-document.getElementById("t_create").innerText=t.create;
-document.getElementById("t_copy").innerText=t.copy;
-document.getElementById("t_created").innerText=t.created;
-document.getElementById("t_legal").innerText=t.legal;
+    const id=Math.random().toString(36).slice(2,10);
+    await setDoc(doc(db,"notes",id),{text});
+
+    const link=`${location.origin}${location.pathname}?id=${id}`;
+    document.getElementById("result").innerText=link;
+    document.getElementById("linkBox").style.display="block";
+  };
 }
-applyLang();
-
-window.toggleLang=()=>{
-lang=lang==="pt"?"en":"pt";
-localStorage.setItem("lang",lang);
-applyLang();
-};
 
 window.toggleTheme=()=>{
-document.body.classList.toggle("light");
-localStorage.setItem("theme",
-document.body.classList.contains("light")?"light":"dark");
-};
-if(localStorage.getItem("theme")==="light")
-document.body.classList.add("light");
-
-/* FUNÇÕES */
-window.createNote=async()=>{
-const text=document.getElementById("text").value.trim();
-if(!text) return alert("Digite algo");
-
-const id=Math.random().toString(36).substring(2,10);
-await setDoc(doc(db,"notes",id),{
-text,
-createdAt:Date.now()
-});
-
-document.getElementById("result").innerText=
-`${location.origin}${location.pathname}?id=${id}`;
-
-document.getElementById("linkBox").style.display="block";
-};
-
-window.copyLink=()=>{
-navigator.clipboard.writeText(result.innerText);
+  document.body.classList.toggle("light");
 };
 </script>
 
