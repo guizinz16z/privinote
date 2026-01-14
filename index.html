@@ -1,234 +1,170 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Privinote</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriviNot</title>
 
 <style>
-:root{
-  --bg-dark:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  --bg-light:linear-gradient(135deg,#f5f7fa,#c3cfe2);
-  --box-dark:rgba(0,0,0,.65);
-  --box-light:rgba(255,255,255,.9);
-  --text-dark:#fff;
-  --text-light:#000;
+:root {
+  --bg: #0f2027;
+  --card: #111827;
+  --text: #ffffff;
+  --sub: #9ca3af;
+  --primary: #3b82f6;
+  --premium: #f43f5e;
+  --input: #1f2933;
 }
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bg-dark);
-  color:var(--text-dark);
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:.4s;
+body.light {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --text: #111827;
+  --sub: #6b7280;
+  --input: #e5e7eb;
 }
 
-body.light{
-  background:var(--bg-light);
-  color:var(--text-light);
+* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
 }
 
-.box{
-  background:var(--box-dark);
-  padding:24px;
-  border-radius:16px;
-  max-width:420px;
-  width:100%;
-  text-align:center;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
-  animation:fade .5s ease;
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text);
 }
 
-body.light .box{background:var(--box-light);}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1}
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  animation: fade .4s ease;
 }
 
-textarea,input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  font-size:16px;
-  margin-top:8px;
+@keyframes fade {
+  from { opacity:0; transform: translateY(10px); }
+  to { opacity:1; transform: translateY(0); }
 }
 
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  cursor:pointer;
-  margin-top:10px;
-  background:linear-gradient(135deg,#00c6ff,#0072ff);
-  color:#fff;
+h1 {
+  text-align: center;
+  margin: 0;
+  font-size: 22px;
 }
 
-button.alt{
-  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+p {
+  text-align: center;
+  font-size: 14px;
+  color: var(--sub);
+  margin-bottom: 20px;
 }
 
-.footer{
-  margin-top:14px;
-  font-size:12px;
-  opacity:.7;
+input, textarea {
+  width: 100%;
+  background: var(--input);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 15px;
 }
 
-.footer a{color:#00c6ff;text-decoration:none}
-
-/* TOGGLE */
-.toggle{
-  position:fixed;
-  top:15px;
-  right:15px;
-  background:none;
-  border:none;
-  font-size:20px;
-  cursor:pointer;
+textarea {
+  resize: none;
+  height: 100px;
 }
 
-/* PRÊMIO */
-.prize-img{
-  width:140px;
-  height:140px;
-  border-radius:50%;
-  border:4px solid #fff;
-  object-fit:cover;
-  margin:15px auto;
-  box-shadow:0 0 20px rgba(0,0,0,.3);
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: .2s;
 }
 
-.confetti{
-  position:fixed;
-  width:8px;
-  height:8px;
-  animation:fall linear infinite;
+button:hover {
+  transform: scale(1.02);
 }
 
-@keyframes fall{
-  from{transform:translateY(-10vh)}
-  to{transform:translateY(110vh)}
+.btn-main {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-premium {
+  background: var(--premium);
+  color: white;
+  margin-top: 10px;
+}
+
+.options {
+  margin-top: 10px;
+}
+
+.toggle {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--sub);
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.footer {
+  margin-top: 16px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--sub);
+}
+
+.footer a {
+  color: var(--primary);
+  text-decoration: none;
 }
 </style>
 </head>
+
 <body>
 
-<button class="toggle" onclick="toggleTheme()">🌙</button>
+<div class="card">
+  <h1>🔐 Criar nota secreta</h1>
+  <p>A nota será destruída após ser lida</p>
 
-<!-- CRIAR -->
-<div class="box" id="create">
-<h2>🔐 Criar nota</h2>
+  <textarea placeholder="Digite sua mensagem secreta..."></textarea>
 
-<textarea id="text" placeholder="Mensagem secreta"></textarea>
+  <div class="toggle" onclick="toggleOptions()">⚙ Opções avançadas</div>
 
-<input id="img" placeholder="URL da imagem (modo prêmio)">
-<input id="btn" placeholder="Link do botão (Telegram)">
+  <div class="options" id="opts" style="display:none">
+    <input placeholder="URL da imagem (premium)">
+    <input placeholder="Link do botão (Telegram)">
+  </div>
 
-<button onclick="createNote()">Criar nota normal</button>
-<button class="alt" onclick="createPrize()">Criar nota prêmio</button>
+  <button class="btn-main">Criar nota</button>
 
-<div class="footer">
-Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+  <button class="btn-premium">⭐ Criar nota premium</button>
+
+  <div class="footer">
+    Criado por <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
+  </div>
 </div>
-</div>
 
-<!-- VIEW -->
-<div class="box" id="view" style="display:none"></div>
-
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig={
-apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-authDomain:"privinote.firebaseapp.com",
-projectId:"privinote",
-storageBucket:"privinote.firebasestorage.app",
-messagingSenderId:"583662739248",
-appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
-};
-
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-
-const params=new URLSearchParams(location.search);
-const id=params.get("id");
-
-const create=document.getElementById("create");
-const view=document.getElementById("view");
-
-if(id){
-create.style.display="none";
-view.style.display="block";
-
-const ref=doc(db,"notes",id);
-const snap=await getDoc(ref);
-
-if(!snap.exists()){
-view.innerHTML="❌ Nota destruída";
-}else{
-const d=snap.data();
-
-if(d.type==="prize"){
-view.innerHTML=`
-<h2>🎉 Você ganhou!</h2>
-<img src="${d.image}" class="prize-img">
-<p>${d.text}</p>
-<a href="${d.button}" target="_blank">
-<button>Resgatar prêmio</button>
-</a>
-`;
-confetti();
-}else{
-view.innerHTML=`<p>${d.text}</p>`;
+<script>
+function toggleOptions() {
+  const o = document.getElementById("opts");
+  o.style.display = o.style.display === "none" ? "block" : "none";
 }
-
-await deleteDoc(ref);
-}
-}
-
-function confetti(){
-for(let i=0;i<80;i++){
-const c=document.createElement("div");
-c.className="confetti";
-c.style.left=Math.random()*100+"vw";
-c.style.background=["#ff0","#0ff","#f0f","#0f0","#fff"][Math.floor(Math.random()*5)];
-c.style.animationDuration=(Math.random()*3+2)+"s";
-document.body.appendChild(c);
-}
-}
-
-window.createNote=async()=>{
-const text=document.getElementById("text").value;
-const id=Math.random().toString(36).slice(2,10);
-await setDoc(doc(db,"notes",id),{type:"text",text});
-alert("Link: "+location.origin+location.pathname+"?id="+id);
-}
-
-window.createPrize=async()=>{
-const id=Math.random().toString(36).slice(2,10);
-await setDoc(doc(db,"notes",id),{
-type:"prize",
-text:document.getElementById("text").value,
-image:document.getElementById("img").value,
-button:document.getElementById("btn").value
-});
-alert("Link: "+location.origin+location.pathname+"?id="+id);
-}
-
-// THEME
-function toggleTheme(){
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
-}
-if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 </script>
 
 </body>
