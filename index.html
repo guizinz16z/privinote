@@ -14,25 +14,21 @@
   --text-dark:#fff;
   --text-light:#111;
   --accent:#00c6ff;
-  --accent2:#0072ff;
-  --ok:#00ffcc;
-  --danger1:#ff416c;
-  --danger2:#ff4b2b;
 }
 
-*{box-sizing:border-box}
+*{ box-sizing:border-box; }
 
 body{
   margin:0;
   padding:16px;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family:"Segoe UI",Arial,sans-serif;
   background:var(--bg-dark);
   color:var(--text-dark);
-  min-height:100vh;
+  height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:.35s;
+  transition:.4s;
 }
 
 body.light{
@@ -43,41 +39,29 @@ body.light{
 .box{
   background:var(--box-dark);
   padding:26px;
-  border-radius:22px;
-  max-width:460px;
+  border-radius:20px;
+  max-width:440px;
   width:100%;
   text-align:center;
-  box-shadow:0 25px 55px rgba(0,0,0,.45);
-  animation:slide .45s ease;
-  backdrop-filter: blur(10px);
+  box-shadow:0 25px 50px rgba(0,0,0,.45);
+  animation:slide .5s ease;
 }
 
 body.light .box{background:var(--box-light);}
 
 @keyframes slide{
-  from{transform:translateY(22px);opacity:0}
+  from{transform:translateY(30px);opacity:0}
   to{transform:none;opacity:1}
-}
-
-h2{
-  margin:0 0 12px;
-  letter-spacing:-.2px;
 }
 
 textarea{
   width:100%;
-  min-height:140px;
-  border-radius:16px;
+  height:120px;
+  border-radius:14px;
   border:none;
   padding:14px;
   font-size:16px;
-  line-height:1.4;
   outline:none;
-  resize:vertical;
-}
-
-textarea:focus{
-  box-shadow:0 0 0 3px rgba(0,198,255,.25);
 }
 
 button{
@@ -88,42 +72,41 @@ button{
   font-size:16px;
   cursor:pointer;
   margin-top:10px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
   color:#fff;
-  transition:.22s;
+  transition:.25s;
 }
 
 button:hover{
-  transform:scale(1.03);
-  box-shadow:0 10px 22px rgba(0,0,0,.25);
+  transform:scale(1.05);
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
-button:active{transform:scale(.985);}
 
 .danger{
-  background:linear-gradient(135deg,var(--danger1),var(--danger2));
-  font-weight:800;
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  font-weight:bold;
 }
 
 .copy-btn{
-  background:var(--ok);
+  background:#00ffcc;
   color:#000;
-  font-weight:800;
+  font-weight:bold;
 }
 
 .link{
   word-break:break-all;
   font-size:14px;
-  color:var(--ok);
+  color:#00ffcc;
   margin-top:12px;
 }
 
 .footer{
   margin-top:18px;
   font-size:12px;
-  opacity:.78;
+  opacity:.75;
 }
 
-.footer a{color:var(--accent);text-decoration:none;font-weight:800}
+.footer a{color:var(--accent);text-decoration:none;font-weight:bold}
 
 .legal{font-size:11px;opacity:.55;margin-top:6px}
 
@@ -133,15 +116,13 @@ button:active{transform:scale(.985);}
   right:15px;
   display:flex;
   gap:8px;
-  z-index:10;
 }
 
 .top-controls button{
   width:auto;
-  min-height:40px;
-  padding:10px 12px;
+  padding:8px 12px;
   font-size:14px;
-  border-radius:12px;
+  border-radius:10px;
 }
 
 .flash{
@@ -166,108 +147,81 @@ button:active{transform:scale(.985);}
   opacity:.75;
 }
 
-/* Render de mensagem (HTML seguro) */
-#message{
-  white-space: pre-wrap;
-  word-break: break-word;
-  text-align:left;
-  margin:0;
-  padding:14px;
-  border-radius:16px;
-  background: rgba(255,255,255,.06);
-}
-body.light #message{ background: rgba(0,0,0,.05); }
+/* ======= ADICIONADO (animações) ======= */
 
-/* Toast */
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  transform:translateX(-50%);
-  background: rgba(0,0,0,.75);
-  color:#fff;
-  padding:10px 14px;
-  border-radius:12px;
-  font-size:13px;
+/* Transições suaves do box (tela) */
+.box{
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform .35s ease, opacity .35s ease;
+  will-change: transform, opacity;
+}
+.box.show{
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Botões com “press” melhor + ripple simples */
+button{
+  position: relative;
+  overflow: hidden;
+}
+button:active{ transform: scale(.98); }
+
+button::after{
+  content:"";
+  position:absolute;
+  width:10px;height:10px;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(1);
+  background: rgba(255,255,255,.35);
+  border-radius:999px;
   opacity:0;
   pointer-events:none;
-  transition:.25s;
-  box-shadow:0 12px 30px rgba(0,0,0,.25);
-  z-index:20;
 }
-body.light .toast{ background: rgba(0,0,0,.78); }
-.toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
-
-/* modal */
-.modal-backdrop{
-  position:fixed;
-  inset:0;
-  background: rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  z-index:30;
+button.ripple::after{
+  animation:ripple .55s ease-out;
 }
-.modal{
-  width:min(460px, 100%);
-  background: rgba(0,0,0,.72);
-  color:#fff;
-  border-radius:18px;
-  padding:18px;
-  box-shadow:0 25px 60px rgba(0,0,0,.45);
-}
-body.light .modal{
-  background: rgba(255,255,255,.95);
-  color:#111;
-}
-.modal h3{margin:0 0 8px}
-.modal p{margin:0 0 14px; opacity:.9}
-.modal-actions{
-  display:flex;
-  gap:10px;
-}
-.modal-actions button{
-  margin-top:0;
-}
-.modal-actions .secondary{
-  background: rgba(255,255,255,.12);
-}
-body.light .modal-actions .secondary{
-  background: rgba(0,0,0,.08);
-  color:#111;
-}
-.small{
-  font-size:12px;
-  opacity:.75;
-  margin-top:10px;
+@keyframes ripple{
+  0%{ opacity:.55; transform:translate(-50%,-50%) scale(1); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(26); }
 }
 
+/* Shake quando tentar criar nota vazia */
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-8px); }
+  40%{ transform:translateX(8px); }
+  60%{ transform:translateX(-6px); }
+  80%{ transform:translateX(6px); }
+}
+.shake{ animation: shake .35s ease; }
+
+/* Fade/slide para a mensagem aparecer */
+@keyframes reveal{
+  from{ opacity:0; transform: translateY(10px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+.reveal{ animation: reveal .35s ease; }
+
+/* Respeitar acessibilidade */
+@media (prefers-reduced-motion: reduce){
+  .box, .box.show, .reveal, .shake, button.ripple::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <div class="top-controls">
-  <button onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
-  <button onclick="toggleLang()" aria-label="Alternar idioma">🌐</button>
+  <button onclick="toggleTheme()">🌓</button>
+  <button onclick="toggleLang()">🌐</button>
 </div>
 
 <div class="flash" id="flash"></div>
-<div class="toast" id="toast"></div>
-
-<!-- Modal confirmação -->
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <h3 id="modalTitle">⚠️ Confirmar</h3>
-    <p id="modalText">Ao abrir, esta nota será destruída imediatamente (1 leitura).</p>
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeModal()" id="t_cancel">Cancelar</button>
-      <button class="danger" onclick="confirmBreak()" id="t_confirm">Abrir e destruir</button>
-    </div>
-    <div class="small" id="t_tip">Dica: você pode colar HTML com &lt;img&gt; e links (&lt;a&gt;).</div>
-  </div>
-</div>
 
 <!-- CREATE -->
 <div class="box" id="create">
@@ -282,7 +236,7 @@ body.light .modal-actions .secondary{
 
   <div class="footer">
     <span id="t_created"></span>
-    <a href="https://t.me/Guizin16z" target="_blank" rel="noopener noreferrer">@Guizin16z</a>
+    <a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
     <div class="legal" id="t_legal"></div>
   </div>
 </div>
@@ -291,7 +245,7 @@ body.light .modal-actions .secondary{
 <div class="box" id="breaker" style="display:none">
   <h2 id="t_protected"></h2>
   <p id="t_warning"></p>
-  <button class="danger" onclick="openModal()" id="t_break"></button>
+  <button class="danger" onclick="breakNote()" id="t_break"></button>
   <button onclick="goCreate()" id="t_new"></button>
 </div>
 
@@ -303,12 +257,9 @@ body.light .modal-actions .secondary{
   <button onclick="goCreate()" id="t_new2"></button>
 </div>
 
-<!-- DOMPurify (permite HTML com segurança) -->
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
-
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
@@ -325,49 +276,31 @@ const db=getFirestore(app);
 const texts={
   pt:{
     create:"🔐 Criar mensagem secreta",
-    placeholder:"Digite sua mensagem... (pode usar HTML: <b>, <i>, <a>, <img> etc.)",
+    placeholder:"Digite sua mensagem secreta...",
     createBtn:"Criar link secreto",
     copy:"📋 Copiar link",
-    copied:"✅ Link copiado!",
     created:"Criado por ",
     legal:"Não utilize para atividades ilegais.",
     protected:"⚠️ Mensagem protegida",
-    warning:"Esta nota só pode ser lida 1 vez. Ao abrir, ela será destruída.",
-    break:"💣 Abrir e destruir",
+    warning:"Ao quebrar, a mensagem será destruída.",
+    break:"💣 Quebrar nota",
     new:"➕ Criar nova nota",
     msg:"📩 Mensagem secreta",
-    destroyed:"🕒 Nota destruída em: ",
-    empty:"Digite uma mensagem primeiro.",
-    missing:"❌ Essa nota já foi aberta ou não existe.",
-    error:"❌ Erro ao abrir a nota.",
-    cancel:"Cancelar",
-    confirm:"Abrir e destruir",
-    modalTitle:"⚠️ Confirmar abertura",
-    modalText:"Ao abrir, esta nota será destruída imediatamente (1 leitura).",
-    tip:"Dica: você pode colar HTML com <img> e links (<a>)."
+    destroyed:"🕒 Nota destruída em: "
   },
   en:{
     create:"🔐 Create secret message",
-    placeholder:"Type your message... (HTML allowed: <b>, <i>, <a>, <img> etc.)",
+    placeholder:"Type your secret message...",
     createBtn:"Create secret link",
     copy:"📋 Copy link",
-    copied:"✅ Link copied!",
     created:"Created by ",
     legal:"Do not use for illegal activities.",
     protected:"⚠️ Protected message",
-    warning:"This note can be read only once. Once opened, it will be destroyed.",
-    break:"💣 Open and destroy",
+    warning:"Once broken, the message will be destroyed.",
+    break:"💣 Break note",
     new:"➕ Create new note",
     msg:"📩 Secret message",
-    destroyed:"🕒 Note destroyed at: ",
-    empty:"Type a message first.",
-    missing:"❌ This note was already opened or doesn’t exist.",
-    error:"❌ Error opening note.",
-    cancel:"Cancel",
-    confirm:"Open and destroy",
-    modalTitle:"⚠️ Confirm open",
-    modalText:"Once opened, the note will be destroyed immediately (1 view).",
-    tip:"Tip: you can paste HTML with <img> and links (<a>)."
+    destroyed:"🕒 Note destroyed at: "
   }
 };
 
@@ -387,12 +320,6 @@ function applyLang(){
   document.getElementById("t_new").innerText=t.new;
   document.getElementById("t_new2").innerText=t.new;
   document.getElementById("t_message").innerText=t.msg;
-
-  document.getElementById("modalTitle").innerText=t.modalTitle;
-  document.getElementById("modalText").innerText=t.modalText;
-  document.getElementById("t_cancel").innerText=t.cancel;
-  document.getElementById("t_confirm").innerText=t.confirm;
-  document.getElementById("t_tip").innerText=t.tip;
 }
 applyLang();
 
@@ -410,30 +337,37 @@ if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 
 const params=new URLSearchParams(location.search);
 const id=params.get("id");
-
 const create=document.getElementById("create");
 const breaker=document.getElementById("breaker");
 const view=document.getElementById("view");
-
 const msg=document.getElementById("message");
 const timeEl=document.getElementById("destroyTime");
 const flash=document.getElementById("flash");
 
-const resultEl=document.getElementById("result");
-const linkBox=document.getElementById("linkBox");
-
-const toastEl=document.getElementById("toast");
-const modalBackdrop=document.getElementById("modalBackdrop");
-
-if(id){
-  create.style.display="none";
-  breaker.style.display="block";
+/* ======= ADICIONADO (JS de animação) ======= */
+function showBox(el){
+  [create, breaker, view].forEach(b=>{
+    b.classList.remove("show");
+    b.style.display="none";
+  });
+  el.style.display="block";
+  requestAnimationFrame(()=> el.classList.add("show"));
 }
 
-function showToast(text){
-  toastEl.textContent=text;
-  toastEl.classList.add("show");
-  setTimeout(()=>toastEl.classList.remove("show"), 1400);
+// Ripple em todos os botões
+document.querySelectorAll("button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    btn.classList.remove("ripple");
+    void btn.offsetWidth; // reinicia animação
+    btn.classList.add("ripple");
+  });
+});
+/* ======= /ADICIONADO ======= */
+
+if(id){
+  showBox(breaker);
+}else{
+  showBox(create);
 }
 
 function formatDate(ts){
@@ -441,121 +375,49 @@ function formatDate(ts){
   return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 }
 
-/* HTML seguro (evita XSS) */
-function renderSafeHtml(el, dirtyHtml){
-  const clean = window.DOMPurify.sanitize(dirtyHtml, {
-    USE_PROFILES: { html: true },
-    ALLOWED_TAGS: [
-      "b","strong","i","em","u","s",
-      "p","br","hr","blockquote",
-      "h1","h2","h3","h4",
-      "ul","ol","li",
-      "a","span","div",
-      "img"
-    ],
-    ALLOWED_ATTR: [
-      "href","title","target","rel",
-      "src","alt","width","height",
-      "style","loading","referrerpolicy"
-    ],
-    ALLOW_DATA_ATTR: false
-  });
-
-  el.innerHTML = clean;
-
-  // Links seguros
-  el.querySelectorAll("a").forEach(a=>{
-    a.setAttribute("rel","noopener noreferrer");
-    if(!a.getAttribute("target")) a.setAttribute("target","_blank");
-  });
-
-  // Imagens com menos vazamento
-  el.querySelectorAll("img").forEach(img=>{
-    img.setAttribute("loading","lazy");
-    img.setAttribute("referrerpolicy","no-referrer");
-  });
-}
-
-/* Modal */
-window.openModal=()=>{ modalBackdrop.style.display="flex"; };
-window.closeModal=()=>{ modalBackdrop.style.display="none"; };
-modalBackdrop.addEventListener("click",(e)=>{ if(e.target===modalBackdrop) closeModal(); });
-
-window.confirmBreak=async()=>{
-  closeModal();
-  await breakNote();
-};
-
 window.breakNote=async()=>{
   flash.classList.add("active");
-
   setTimeout(async()=>{
-    breaker.style.display="none";
-    view.style.display="block";
+    showBox(view);
+    msg.classList.add("reveal");
     flash.classList.remove("active");
 
-    if(!id){
-      msg.innerText="❌";
-      timeEl.innerText="";
-      return;
-    }
-
     const ref=doc(db,"notes",id);
+    const snap=await getDoc(ref);
     const now=Date.now();
 
-    try{
-      // 1 leitura REAL: lê+deleta em transação (evita duas pessoas lerem)
-      const data = await runTransaction(db, async (tx) => {
-        const snap = await tx.get(ref);
-        if(!snap.exists()) return null;
-
-        const payload = snap.data();
-        tx.delete(ref);
-        return payload;
-      });
-
-      if(!data){
-        msg.innerText=texts[lang].missing;
-        timeEl.innerText="";
-        return;
-      }
-
-      renderSafeHtml(msg, data.text || "");
-      timeEl.innerText=texts[lang].destroyed + formatDate(now);
-
-    }catch(err){
-      console.error(err);
-      msg.innerText=texts[lang].error;
+    if(!snap.exists()){
+      msg.innerText="❌";
       timeEl.innerText="";
+    }else{
+      msg.innerText=snap.data().text;
+      timeEl.innerText=texts[lang].destroyed+formatDate(now);
+      await deleteDoc(ref);
     }
-  }, 450);
+  },500);
 };
 
 window.createNote=async()=>{
   const text=document.getElementById("text").value.trim();
+
+  /* ======= ADICIONADO (shake se vazio) ======= */
   if(!text){
-    alert(texts[lang].empty);
+    create.classList.remove("shake");
+    void create.offsetWidth;
+    create.classList.add("shake");
     return;
   }
+  /* ======= /ADICIONADO ======= */
 
-  // ID melhor (crypto)
-  const bytes = new Uint8Array(8);
-  crypto.getRandomValues(bytes);
-  const newId = Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
-
-  await setDoc(doc(db,"notes",newId),{ text, createdAt: Date.now() });
-
-  resultEl.innerText = `${location.origin}${location.pathname}?id=${newId}`;
-  linkBox.style.display="block";
+  const id=Math.random().toString(36).substring(2,10);
+  await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
+  document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
+  document.getElementById("linkBox").style.display="block";
 };
 
-window.copyLink=async()=>{
-  try{
-    await navigator.clipboard.writeText(resultEl.innerText);
-    showToast(texts[lang].copied);
-  }catch{
-    showToast("❌");
-  }
+window.copyLink=()=>{
+  const resultEl = document.getElementById("result");
+  navigator.clipboard.writeText(resultEl.innerText);
 };
 
 window.goCreate=()=>location.href=location.pathname;
