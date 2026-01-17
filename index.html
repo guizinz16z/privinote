@@ -252,10 +252,16 @@ button.ripple::after{
 <!-- VIEW -->
 <div class="box" id="view" style="display:none">
   <h2 id="t_message"></h2>
-  <p id="message"></p>
+
+  <!-- TROQUEI P -> DIV (melhor pra HTML) -->
+  <div id="message"></div>
+
   <div class="time" id="destroyTime"></div>
   <button onclick="goCreate()" id="t_new2"></button>
 </div>
+
+<!-- DOMPurify (para HTML seguro) -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -276,7 +282,7 @@ const db=getFirestore(app);
 const texts={
   pt:{
     create:"🔐 Criar mensagem secreta",
-    placeholder:"Digite sua mensagem secreta...",
+    placeholder:"Digite sua mensagem secreta... (pode usar HTML: <b>, <i>, <a>, <img>)",
     createBtn:"Criar link secreto",
     copy:"📋 Copiar link",
     created:"Criado por ",
@@ -290,7 +296,7 @@ const texts={
   },
   en:{
     create:"🔐 Create secret message",
-    placeholder:"Type your secret message...",
+    placeholder:"Type your secret message... (HTML allowed: <b>, <i>, <a>, <img>)",
     createBtn:"Create secret link",
     copy:"📋 Copy link",
     created:"Created by ",
@@ -390,7 +396,26 @@ window.breakNote=async()=>{
       msg.innerText="❌";
       timeEl.innerText="";
     }else{
-      msg.innerText=snap.data().text;
+      const raw = snap.data().text || "";
+
+      // HTML renderizado com segurança (DOMPurify)
+      msg.innerHTML = DOMPurify.sanitize(raw, {
+        USE_PROFILES: { html: true },
+        ALLOWED_TAGS: [
+          "b","strong","i","em","u","s",
+          "p","br","hr","blockquote",
+          "h1","h2","h3","h4",
+          "ul","ol","li",
+          "a","span","div",
+          "img"
+        ],
+        ALLOWED_ATTR: [
+          "href","title","target","rel",
+          "src","alt","width","height",
+          "style","loading","referrerpolicy"
+        ]
+      });
+
       timeEl.innerText=texts[lang].destroyed+formatDate(now);
       await deleteDoc(ref);
     }
