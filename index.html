@@ -5,6 +5,17 @@
 <title>Privinote</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- CSP (opcional, mas recomendado) -->
+<meta http-equiv="Content-Security-Policy" content="
+default-src 'self';
+script-src 'self' https://www.gstatic.com https://cdn.jsdelivr.net;
+style-src 'self' 'unsafe-inline';
+img-src 'self' https: data:;
+connect-src https://firestore.googleapis.com https://*.googleapis.com;
+frame-ancestors 'none';
+base-uri 'self';
+">
+
 <style>
 :root{
   --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
@@ -14,14 +25,19 @@
   --text-dark:#fff;
   --text-light:#111;
   --accent:#00c6ff;
+  --accent2:#0072ff;
+  --ok:#00ffcc;
 }
+
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:"Segoe UI",Arial,sans-serif;
+  padding:16px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   background:var(--bg-dark);
   color:var(--text-dark);
-  height:100vh;
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -51,14 +67,25 @@ body.light .box{background:var(--box-light);}
   to{transform:none;opacity:1}
 }
 
+h2{
+  margin:0 0 12px;
+  letter-spacing:-.2px;
+}
+
 textarea{
   width:100%;
-  height:120px;
+  height:140px;
   border-radius:14px;
   border:none;
   padding:14px;
   font-size:16px;
+  line-height:1.4;
   outline:none;
+  resize:vertical;
+}
+
+textarea:focus{
+  box-shadow: 0 0 0 3px rgba(0,198,255,.25);
 }
 
 button{
@@ -69,15 +96,16 @@ button{
   font-size:16px;
   cursor:pointer;
   margin-top:10px;
-  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#fff;
   transition:.25s;
 }
 
 button:hover{
-  transform:scale(1.05);
+  transform:scale(1.03);
   box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
+button:active{transform:scale(.98);}
 
 .danger{
   background:linear-gradient(135deg,#ff416c,#ff4b2b);
@@ -85,7 +113,7 @@ button:hover{
 }
 
 .copy-btn{
-  background:#00ffcc;
+  background:var(--ok);
   color:#000;
   font-weight:bold;
 }
@@ -93,7 +121,7 @@ button:hover{
 .link{
   word-break:break-all;
   font-size:14px;
-  color:#00ffcc;
+  color:var(--ok);
   margin-top:12px;
 }
 
@@ -117,7 +145,7 @@ button:hover{
 
 .top-controls button{
   width:auto;
-  padding:8px 12px;
+  padding:10px 12px;
   font-size:14px;
   border-radius:10px;
 }
@@ -143,179 +171,283 @@ button:hover{
   font-size:13px;
   opacity:.75;
 }
+
+/* mensagem renderizada (HTML seguro) */
+#message{
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align:left;
+  margin: 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+}
+body.light #message{
+  background: rgba(0,0,0,.05);
+}
+
+/* acessibilidade simples (label invisível) */
+.sr-only{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
 </style>
 </head>
 
 <body>
 
 <div class="top-controls">
-  <button onclick="toggleTheme()">🌓</button>
-  <button onclick="toggleLang()">🌐</button>
+  <button onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+  <button onclick="toggleLang()" aria-label="Alternar idioma">🌐</button>
 </div>
 
 <div class="flash" id="flash"></div>
 
 <!-- CREATE -->
 <div class="box" id="create">
-<h2 id="t_create">🔐 Criar mensagem secreta</h2>
-<textarea id="text" placeholder=""></textarea>
-<button onclick="createNote()" id="t_create_btn"></button>
+  <h2 id="t_create">🔐 Criar mensagem secreta</h2>
 
-<div id="linkBox" style="display:none">
-  <div class="link" id="result"></div>
-  <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
-</div>
+  <label class="sr-only" for="text">Mensagem</label>
+  <textarea id="text" placeholder=""></textarea>
 
-<div class="footer">
-<span id="t_created"></span>
-<a href="https://t.me/Guizin16z" target="_blank">@Guizin16z</a>
-<div class="legal" id="t_legal"></div>
-</div>
+  <button onclick="createNote()" id="t_create_btn"></button>
+
+  <div id="linkBox" style="display:none">
+    <div class="link" id="result"></div>
+    <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
+  </div>
+
+  <div class="footer">
+    <span id="t_created"></span>
+    <a href="https://t.me/Guizin16z" target="_blank" rel="noopener noreferrer">@Guizin16z</a>
+    <div class="legal" id="t_legal"></div>
+  </div>
 </div>
 
 <!-- BREAK -->
 <div class="box" id="breaker" style="display:none">
-<h2 id="t_protected"></h2>
-<p id="t_warning"></p>
-<button class="danger" onclick="breakNote()" id="t_break"></button>
-<button onclick="goCreate()" id="t_new"></button>
+  <h2 id="t_protected"></h2>
+  <p id="t_warning"></p>
+  <button class="danger" onclick="breakNote()" id="t_break"></button>
+  <button onclick="goCreate()" id="t_new"></button>
 </div>
 
 <!-- VIEW -->
 <div class="box" id="view" style="display:none">
-<h2 id="t_message"></h2>
-<p id="message"></p>
-<div class="time" id="destroyTime"></div>
-<button onclick="goCreate()" id="t_new2"></button>
+  <h2 id="t_message"></h2>
+  <p id="message"></p>
+  <div class="time" id="destroyTime"></div>
+  <button onclick="goCreate()" id="t_new2"></button>
 </div>
+
+<!-- DOMPurify (para renderizar HTML com segurança) -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {getFirestore,doc,setDoc,runTransaction} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
-apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
-authDomain:"privinote.firebaseapp.com",
-projectId:"privinote",
-storageBucket:"privinote.firebasestorage.app",
-messagingSenderId:"583662739248",
-appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
+  apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
+  authDomain:"privinote.firebaseapp.com",
+  projectId:"privinote",
+  storageBucket:"privinote.firebasestorage.app",
+  messagingSenderId:"583662739248",
+  appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
 };
 
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
 const texts={
-pt:{
-create:"🔐 Criar mensagem secreta",
-placeholder:"Digite sua mensagem secreta...",
-createBtn:"Criar link secreto",
-copy:"📋 Copiar link",
-created:"Criado por ",
-legal:"Não utilize para atividades ilegais.",
-protected:"⚠️ Mensagem protegida",
-warning:"Ao quebrar, a mensagem será destruída.",
-break:"💣 Quebrar nota",
-new:"➕ Criar nova nota",
-msg:"📩 Mensagem secreta",
-destroyed:"🕒 Nota destruída em: "
-},
-en:{
-create:"🔐 Create secret message",
-placeholder:"Type your secret message...",
-createBtn:"Create secret link",
-copy:"📋 Copy link",
-created:"Created by ",
-legal:"Do not use for illegal activities.",
-protected:"⚠️ Protected message",
-warning:"Once broken, the message will be destroyed.",
-break:"💣 Break note",
-new:"➕ Create new note",
-msg:"📩 Secret message",
-destroyed:"🕒 Note destroyed at: "
-}
+  pt:{
+    create:"🔐 Criar mensagem secreta",
+    placeholder:"Digite sua mensagem secreta... (pode usar HTML: <b>, <i>, <a>, <img> etc.)",
+    createBtn:"Criar link secreto",
+    copy:"📋 Copiar link",
+    created:"Criado por ",
+    legal:"Não utilize para atividades ilegais.",
+    protected:"⚠️ Mensagem protegida",
+    warning:"Ao quebrar, a mensagem será destruída (1 leitura).",
+    break:"💣 Abrir e destruir",
+    new:"➕ Criar nova nota",
+    msg:"📩 Mensagem secreta",
+    destroyed:"🕒 Nota destruída em: ",
+    invalid:"❌ Link inválido.",
+    missing:"❌ Essa nota já foi aberta ou não existe.",
+    error:"❌ Erro ao abrir a nota."
+  },
+  en:{
+    create:"🔐 Create secret message",
+    placeholder:"Type your secret message... (HTML allowed: <b>, <i>, <a>, <img> etc.)",
+    createBtn:"Create secret link",
+    copy:"📋 Copy link",
+    created:"Created by ",
+    legal:"Do not use for illegal activities.",
+    protected:"⚠️ Protected message",
+    warning:"Once opened, it will be destroyed (1 view).",
+    break:"💣 Open and destroy",
+    new:"➕ Create new note",
+    msg:"📩 Secret message",
+    destroyed:"🕒 Note destroyed at: ",
+    invalid:"❌ Invalid link.",
+    missing:"❌ This note was already opened or doesn’t exist.",
+    error:"❌ Error opening note."
+  }
 };
 
 let lang=localStorage.getItem("lang")||"pt";
 
 function applyLang(){
-const t=texts[lang];
-document.getElementById("t_create").innerText=t.create;
-document.getElementById("text").placeholder=t.placeholder;
-document.getElementById("t_create_btn").innerText=t.createBtn;
-document.getElementById("t_copy").innerText=t.copy;
-document.getElementById("t_created").innerText=t.created;
-document.getElementById("t_legal").innerText=t.legal;
-document.getElementById("t_protected").innerText=t.protected;
-document.getElementById("t_warning").innerText=t.warning;
-document.getElementById("t_break").innerText=t.break;
-document.getElementById("t_new").innerText=t.new;
-document.getElementById("t_new2").innerText=t.new;
-document.getElementById("t_message").innerText=t.msg;
+  const t=texts[lang];
+  document.getElementById("t_create").innerText=t.create;
+  document.getElementById("text").placeholder=t.placeholder;
+  document.getElementById("t_create_btn").innerText=t.createBtn;
+  document.getElementById("t_copy").innerText=t.copy;
+  document.getElementById("t_created").innerText=t.created;
+  document.getElementById("t_legal").innerText=t.legal;
+  document.getElementById("t_protected").innerText=t.protected;
+  document.getElementById("t_warning").innerText=t.warning;
+  document.getElementById("t_break").innerText=t.break;
+  document.getElementById("t_new").innerText=t.new;
+  document.getElementById("t_new2").innerText=t.new;
+  document.getElementById("t_message").innerText=t.msg;
 }
 applyLang();
 
 window.toggleLang=()=>{
-lang=lang==="pt"?"en":"pt";
-localStorage.setItem("lang",lang);
-applyLang();
+  lang=lang==="pt"?"en":"pt";
+  localStorage.setItem("lang",lang);
+  applyLang();
 };
 
 window.toggleTheme=()=>{
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
 };
 if(localStorage.getItem("theme")==="light")document.body.classList.add("light");
 
 const params=new URLSearchParams(location.search);
 const id=params.get("id");
+
 const create=document.getElementById("create");
 const breaker=document.getElementById("breaker");
 const view=document.getElementById("view");
+
 const msg=document.getElementById("message");
 const timeEl=document.getElementById("destroyTime");
 const flash=document.getElementById("flash");
 
-if(id){create.style.display="none";breaker.style.display="block";}
+const resultEl=document.getElementById("result");
+
+if(id){
+  create.style.display="none";
+  breaker.style.display="block";
+}
 
 function formatDate(ts){
-const d=new Date(ts);
-return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  const d=new Date(ts);
+  return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 }
 
-window.breakNote=async()=>{
-flash.classList.add("active");
-setTimeout(async()=>{
-breaker.style.display="none";
-view.style.display="block";
-flash.classList.remove("active");
+function renderSafeHtml(el, dirtyHtml){
+  const clean = window.DOMPurify.sanitize(dirtyHtml, {
+    USE_PROFILES: { html: true },
+    ALLOWED_TAGS: [
+      "b","strong","i","em","u","s",
+      "p","br","hr","blockquote",
+      "h1","h2","h3","h4",
+      "ul","ol","li",
+      "a","span","div",
+      "img"
+    ],
+    ALLOWED_ATTR: [
+      "href","title","target","rel",
+      "src","alt","width","height",
+      "style","loading","referrerpolicy"
+    ],
+    ALLOW_DATA_ATTR: false
+  });
 
-const ref=doc(db,"notes",id);
-const snap=await getDoc(ref);
-const now=Date.now();
+  el.innerHTML = clean;
 
-if(!snap.exists()){
-msg.innerText="❌";
-timeEl.innerText="";
-}else{
-msg.innerText=snap.data().text;
-timeEl.innerText=texts[lang].destroyed+formatDate(now);
-await deleteDoc(ref);
+  el.querySelectorAll("a").forEach(a=>{
+    a.setAttribute("rel","noopener noreferrer");
+    if(!a.getAttribute("target")) a.setAttribute("target","_blank");
+  });
+
+  el.querySelectorAll("img").forEach(img=>{
+    img.setAttribute("loading","lazy");
+    img.setAttribute("referrerpolicy","no-referrer");
+  });
 }
-},500);
+
+window.breakNote = async () => {
+  flash.classList.add("active");
+
+  setTimeout(async () => {
+    breaker.style.display="none";
+    view.style.display="block";
+    flash.classList.remove("active");
+
+    if(!id){
+      msg.innerText = texts[lang].invalid;
+      timeEl.innerText = "";
+      return;
+    }
+
+    const ref=doc(db,"notes",id);
+    const now=Date.now();
+
+    try{
+      const data = await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return null;
+
+        const payload = snap.data();
+        tx.delete(ref); // 1 leitura real: deleta dentro da transação
+        return payload;
+      });
+
+      if(!data){
+        msg.innerText = texts[lang].missing;
+        timeEl.innerText = "";
+        return;
+      }
+
+      // Renderiza HTML seguro (com suporte a <img>, <a>, etc.)
+      renderSafeHtml(msg, data.text || "");
+      timeEl.innerText = texts[lang].destroyed + formatDate(now);
+
+    }catch(e){
+      console.error(e);
+      msg.innerText = texts[lang].error;
+      timeEl.innerText = "";
+    }
+  }, 500);
 };
 
-window.createNote=async()=>{
-const text=document.getElementById("text").value.trim();
-if(!text)return alert("...");
-const id=Math.random().toString(36).substring(2,10);
-await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
-document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
-document.getElementById("linkBox").style.display="block";
+window.createNote = async () => {
+  const text=document.getElementById("text").value.trim();
+  if(!text) return alert("Digite uma mensagem.");
+
+  // ID mais forte que Math.random
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const newId = Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+
+  await setDoc(doc(db,"notes",newId),{ text, createdAt: Date.now() });
+
+  resultEl.innerText = `${location.origin}${location.pathname}?id=${newId}`;
+  document.getElementById("linkBox").style.display="block";
 };
 
-window.copyLink=()=>navigator.clipboard.writeText(result.innerText);
-window.goCreate=()=>location.href=location.pathname;
+window.copyLink = () => navigator.clipboard.writeText(resultEl.innerText);
+
+window.goCreate = () => location.href = location.pathname;
 </script>
 
 </body>
