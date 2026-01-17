@@ -5,17 +5,6 @@
 <title>Privinote</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- CSP (opcional, mas recomendado) -->
-<meta http-equiv="Content-Security-Policy" content="
-default-src 'self';
-script-src 'self' https://www.gstatic.com https://cdn.jsdelivr.net;
-style-src 'self' 'unsafe-inline';
-img-src 'self' https: data:;
-connect-src https://firestore.googleapis.com https://*.googleapis.com;
-frame-ancestors 'none';
-base-uri 'self';
-">
-
 <style>
 :root{
   --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
@@ -27,6 +16,8 @@ base-uri 'self';
   --accent:#00c6ff;
   --accent2:#0072ff;
   --ok:#00ffcc;
+  --danger1:#ff416c;
+  --danger2:#ff4b2b;
 }
 
 *{box-sizing:border-box}
@@ -41,7 +32,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:.4s;
+  transition:.35s;
 }
 
 body.light{
@@ -52,18 +43,19 @@ body.light{
 .box{
   background:var(--box-dark);
   padding:26px;
-  border-radius:20px;
-  max-width:440px;
+  border-radius:22px;
+  max-width:460px;
   width:100%;
   text-align:center;
-  box-shadow:0 25px 50px rgba(0,0,0,.45);
-  animation:slide .5s ease;
+  box-shadow:0 25px 55px rgba(0,0,0,.45);
+  animation:slide .45s ease;
+  backdrop-filter: blur(10px);
 }
 
 body.light .box{background:var(--box-light);}
 
 @keyframes slide{
-  from{transform:translateY(30px);opacity:0}
+  from{transform:translateY(22px);opacity:0}
   to{transform:none;opacity:1}
 }
 
@@ -74,8 +66,8 @@ h2{
 
 textarea{
   width:100%;
-  height:140px;
-  border-radius:14px;
+  min-height:140px;
+  border-radius:16px;
   border:none;
   padding:14px;
   font-size:16px;
@@ -85,7 +77,7 @@ textarea{
 }
 
 textarea:focus{
-  box-shadow: 0 0 0 3px rgba(0,198,255,.25);
+  box-shadow:0 0 0 3px rgba(0,198,255,.25);
 }
 
 button{
@@ -98,24 +90,24 @@ button{
   margin-top:10px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#fff;
-  transition:.25s;
+  transition:.22s;
 }
 
 button:hover{
   transform:scale(1.03);
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
+  box-shadow:0 10px 22px rgba(0,0,0,.25);
 }
-button:active{transform:scale(.98);}
+button:active{transform:scale(.985);}
 
 .danger{
-  background:linear-gradient(135deg,#ff416c,#ff4b2b);
-  font-weight:bold;
+  background:linear-gradient(135deg,var(--danger1),var(--danger2));
+  font-weight:800;
 }
 
 .copy-btn{
   background:var(--ok);
   color:#000;
-  font-weight:bold;
+  font-weight:800;
 }
 
 .link{
@@ -128,10 +120,10 @@ button:active{transform:scale(.98);}
 .footer{
   margin-top:18px;
   font-size:12px;
-  opacity:.75;
+  opacity:.78;
 }
 
-.footer a{color:var(--accent);text-decoration:none;font-weight:bold}
+.footer a{color:var(--accent);text-decoration:none;font-weight:800}
 
 .legal{font-size:11px;opacity:.55;margin-top:6px}
 
@@ -141,13 +133,15 @@ button:active{transform:scale(.98);}
   right:15px;
   display:flex;
   gap:8px;
+  z-index:10;
 }
 
 .top-controls button{
   width:auto;
+  min-height:40px;
   padding:10px 12px;
   font-size:14px;
-  border-radius:10px;
+  border-radius:12px;
 }
 
 .flash{
@@ -172,28 +166,83 @@ button:active{transform:scale(.98);}
   opacity:.75;
 }
 
-/* mensagem renderizada (HTML seguro) */
+/* Render de mensagem (HTML seguro) */
 #message{
   white-space: pre-wrap;
   word-break: break-word;
   text-align:left;
-  margin: 0;
-  padding: 14px;
-  border-radius: 14px;
+  margin:0;
+  padding:14px;
+  border-radius:16px;
   background: rgba(255,255,255,.06);
 }
-body.light #message{
-  background: rgba(0,0,0,.05);
+body.light #message{ background: rgba(0,0,0,.05); }
+
+/* Toast */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  background: rgba(0,0,0,.75);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:13px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  z-index:20;
+}
+body.light .toast{ background: rgba(0,0,0,.78); }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+
+/* modal */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background: rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:30;
+}
+.modal{
+  width:min(460px, 100%);
+  background: rgba(0,0,0,.72);
+  color:#fff;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 25px 60px rgba(0,0,0,.45);
+}
+body.light .modal{
+  background: rgba(255,255,255,.95);
+  color:#111;
+}
+.modal h3{margin:0 0 8px}
+.modal p{margin:0 0 14px; opacity:.9}
+.modal-actions{
+  display:flex;
+  gap:10px;
+}
+.modal-actions button{
+  margin-top:0;
+}
+.modal-actions .secondary{
+  background: rgba(255,255,255,.12);
+}
+body.light .modal-actions .secondary{
+  background: rgba(0,0,0,.08);
+  color:#111;
+}
+.small{
+  font-size:12px;
+  opacity:.75;
+  margin-top:10px;
 }
 
-/* acessibilidade simples (label invisível) */
-.sr-only{
-  position:absolute;
-  width:1px;height:1px;
-  padding:0;margin:-1px;
-  overflow:hidden;clip:rect(0,0,0,0);
-  white-space:nowrap;border:0;
-}
 </style>
 </head>
 
@@ -205,14 +254,25 @@ body.light #message{
 </div>
 
 <div class="flash" id="flash"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Modal confirmação -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">⚠️ Confirmar</h3>
+    <p id="modalText">Ao abrir, esta nota será destruída imediatamente (1 leitura).</p>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeModal()" id="t_cancel">Cancelar</button>
+      <button class="danger" onclick="confirmBreak()" id="t_confirm">Abrir e destruir</button>
+    </div>
+    <div class="small" id="t_tip">Dica: você pode colar HTML com &lt;img&gt; e links (&lt;a&gt;).</div>
+  </div>
+</div>
 
 <!-- CREATE -->
 <div class="box" id="create">
   <h2 id="t_create">🔐 Criar mensagem secreta</h2>
-
-  <label class="sr-only" for="text">Mensagem</label>
   <textarea id="text" placeholder=""></textarea>
-
   <button onclick="createNote()" id="t_create_btn"></button>
 
   <div id="linkBox" style="display:none">
@@ -231,7 +291,7 @@ body.light #message{
 <div class="box" id="breaker" style="display:none">
   <h2 id="t_protected"></h2>
   <p id="t_warning"></p>
-  <button class="danger" onclick="breakNote()" id="t_break"></button>
+  <button class="danger" onclick="openModal()" id="t_break"></button>
   <button onclick="goCreate()" id="t_new"></button>
 </div>
 
@@ -243,7 +303,7 @@ body.light #message{
   <button onclick="goCreate()" id="t_new2"></button>
 </div>
 
-<!-- DOMPurify (para renderizar HTML com segurança) -->
+<!-- DOMPurify (permite HTML com segurança) -->
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
 
 <script type="module">
@@ -265,37 +325,49 @@ const db=getFirestore(app);
 const texts={
   pt:{
     create:"🔐 Criar mensagem secreta",
-    placeholder:"Digite sua mensagem secreta... (pode usar HTML: <b>, <i>, <a>, <img> etc.)",
+    placeholder:"Digite sua mensagem... (pode usar HTML: <b>, <i>, <a>, <img> etc.)",
     createBtn:"Criar link secreto",
     copy:"📋 Copiar link",
+    copied:"✅ Link copiado!",
     created:"Criado por ",
     legal:"Não utilize para atividades ilegais.",
     protected:"⚠️ Mensagem protegida",
-    warning:"Ao quebrar, a mensagem será destruída (1 leitura).",
+    warning:"Esta nota só pode ser lida 1 vez. Ao abrir, ela será destruída.",
     break:"💣 Abrir e destruir",
     new:"➕ Criar nova nota",
     msg:"📩 Mensagem secreta",
     destroyed:"🕒 Nota destruída em: ",
-    invalid:"❌ Link inválido.",
+    empty:"Digite uma mensagem primeiro.",
     missing:"❌ Essa nota já foi aberta ou não existe.",
-    error:"❌ Erro ao abrir a nota."
+    error:"❌ Erro ao abrir a nota.",
+    cancel:"Cancelar",
+    confirm:"Abrir e destruir",
+    modalTitle:"⚠️ Confirmar abertura",
+    modalText:"Ao abrir, esta nota será destruída imediatamente (1 leitura).",
+    tip:"Dica: você pode colar HTML com <img> e links (<a>)."
   },
   en:{
     create:"🔐 Create secret message",
-    placeholder:"Type your secret message... (HTML allowed: <b>, <i>, <a>, <img> etc.)",
+    placeholder:"Type your message... (HTML allowed: <b>, <i>, <a>, <img> etc.)",
     createBtn:"Create secret link",
     copy:"📋 Copy link",
+    copied:"✅ Link copied!",
     created:"Created by ",
     legal:"Do not use for illegal activities.",
     protected:"⚠️ Protected message",
-    warning:"Once opened, it will be destroyed (1 view).",
+    warning:"This note can be read only once. Once opened, it will be destroyed.",
     break:"💣 Open and destroy",
     new:"➕ Create new note",
     msg:"📩 Secret message",
     destroyed:"🕒 Note destroyed at: ",
-    invalid:"❌ Invalid link.",
+    empty:"Type a message first.",
     missing:"❌ This note was already opened or doesn’t exist.",
-    error:"❌ Error opening note."
+    error:"❌ Error opening note.",
+    cancel:"Cancel",
+    confirm:"Open and destroy",
+    modalTitle:"⚠️ Confirm open",
+    modalText:"Once opened, the note will be destroyed immediately (1 view).",
+    tip:"Tip: you can paste HTML with <img> and links (<a>)."
   }
 };
 
@@ -315,6 +387,12 @@ function applyLang(){
   document.getElementById("t_new").innerText=t.new;
   document.getElementById("t_new2").innerText=t.new;
   document.getElementById("t_message").innerText=t.msg;
+
+  document.getElementById("modalTitle").innerText=t.modalTitle;
+  document.getElementById("modalText").innerText=t.modalText;
+  document.getElementById("t_cancel").innerText=t.cancel;
+  document.getElementById("t_confirm").innerText=t.confirm;
+  document.getElementById("t_tip").innerText=t.tip;
 }
 applyLang();
 
@@ -342,10 +420,20 @@ const timeEl=document.getElementById("destroyTime");
 const flash=document.getElementById("flash");
 
 const resultEl=document.getElementById("result");
+const linkBox=document.getElementById("linkBox");
+
+const toastEl=document.getElementById("toast");
+const modalBackdrop=document.getElementById("modalBackdrop");
 
 if(id){
   create.style.display="none";
   breaker.style.display="block";
+}
+
+function showToast(text){
+  toastEl.textContent=text;
+  toastEl.classList.add("show");
+  setTimeout(()=>toastEl.classList.remove("show"), 1400);
 }
 
 function formatDate(ts){
@@ -353,6 +441,7 @@ function formatDate(ts){
   return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 }
 
+/* HTML seguro (evita XSS) */
 function renderSafeHtml(el, dirtyHtml){
   const clean = window.DOMPurify.sanitize(dirtyHtml, {
     USE_PROFILES: { html: true },
@@ -374,28 +463,40 @@ function renderSafeHtml(el, dirtyHtml){
 
   el.innerHTML = clean;
 
+  // Links seguros
   el.querySelectorAll("a").forEach(a=>{
     a.setAttribute("rel","noopener noreferrer");
     if(!a.getAttribute("target")) a.setAttribute("target","_blank");
   });
 
+  // Imagens com menos vazamento
   el.querySelectorAll("img").forEach(img=>{
     img.setAttribute("loading","lazy");
     img.setAttribute("referrerpolicy","no-referrer");
   });
 }
 
-window.breakNote = async () => {
+/* Modal */
+window.openModal=()=>{ modalBackdrop.style.display="flex"; };
+window.closeModal=()=>{ modalBackdrop.style.display="none"; };
+modalBackdrop.addEventListener("click",(e)=>{ if(e.target===modalBackdrop) closeModal(); });
+
+window.confirmBreak=async()=>{
+  closeModal();
+  await breakNote();
+};
+
+window.breakNote=async()=>{
   flash.classList.add("active");
 
-  setTimeout(async () => {
+  setTimeout(async()=>{
     breaker.style.display="none";
     view.style.display="block";
     flash.classList.remove("active");
 
     if(!id){
-      msg.innerText = texts[lang].invalid;
-      timeEl.innerText = "";
+      msg.innerText="❌";
+      timeEl.innerText="";
       return;
     }
 
@@ -403,38 +504,41 @@ window.breakNote = async () => {
     const now=Date.now();
 
     try{
+      // 1 leitura REAL: lê+deleta em transação (evita duas pessoas lerem)
       const data = await runTransaction(db, async (tx) => {
         const snap = await tx.get(ref);
         if(!snap.exists()) return null;
 
         const payload = snap.data();
-        tx.delete(ref); // 1 leitura real: deleta dentro da transação
+        tx.delete(ref);
         return payload;
       });
 
       if(!data){
-        msg.innerText = texts[lang].missing;
-        timeEl.innerText = "";
+        msg.innerText=texts[lang].missing;
+        timeEl.innerText="";
         return;
       }
 
-      // Renderiza HTML seguro (com suporte a <img>, <a>, etc.)
       renderSafeHtml(msg, data.text || "");
-      timeEl.innerText = texts[lang].destroyed + formatDate(now);
+      timeEl.innerText=texts[lang].destroyed + formatDate(now);
 
-    }catch(e){
-      console.error(e);
-      msg.innerText = texts[lang].error;
-      timeEl.innerText = "";
+    }catch(err){
+      console.error(err);
+      msg.innerText=texts[lang].error;
+      timeEl.innerText="";
     }
-  }, 500);
+  }, 450);
 };
 
-window.createNote = async () => {
+window.createNote=async()=>{
   const text=document.getElementById("text").value.trim();
-  if(!text) return alert("Digite uma mensagem.");
+  if(!text){
+    alert(texts[lang].empty);
+    return;
+  }
 
-  // ID mais forte que Math.random
+  // ID melhor (crypto)
   const bytes = new Uint8Array(8);
   crypto.getRandomValues(bytes);
   const newId = Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
@@ -442,12 +546,19 @@ window.createNote = async () => {
   await setDoc(doc(db,"notes",newId),{ text, createdAt: Date.now() });
 
   resultEl.innerText = `${location.origin}${location.pathname}?id=${newId}`;
-  document.getElementById("linkBox").style.display="block";
+  linkBox.style.display="block";
 };
 
-window.copyLink = () => navigator.clipboard.writeText(resultEl.innerText);
+window.copyLink=async()=>{
+  try{
+    await navigator.clipboard.writeText(resultEl.innerText);
+    showToast(texts[lang].copied);
+  }catch{
+    showToast("❌");
+  }
+};
 
-window.goCreate = () => location.href = location.pathname;
+window.goCreate=()=>location.href=location.pathname;
 </script>
 
 </body>
