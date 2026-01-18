@@ -147,6 +147,69 @@ button:hover{
   opacity:.75;
 }
 
+/* ======= ADICIONADO (opções 2 e 3) ======= */
+.options{
+  margin-top:10px;
+  text-align:left;
+  font-size:13px;
+  opacity:.9;
+}
+
+.options label{
+  display:block;
+  margin-top:8px;
+}
+
+.options select,
+.options input[type="password"]{
+  width:100%;
+  margin-top:6px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:none;
+  outline:none;
+  font-size:14px;
+}
+
+.options .row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:8px;
+}
+
+.options .row input[type="checkbox"]{
+  transform:scale(1.1);
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.actions button{
+  width:100%;
+  padding:12px;
+  font-size:14px;
+  border-radius:12px;
+  margin-top:0;
+}
+
+.share-btn{
+  background:linear-gradient(135deg,#7CFF6B,#00C6FF);
+  color:#001;
+  font-weight:bold;
+}
+
+.preview-btn{
+  background:linear-gradient(135deg,#FFD36B,#FF7A00);
+  color:#111;
+  font-weight:bold;
+}
+/* ======= /ADICIONADO ======= */
+
+
 /* ======= ADICIONADO (animações) ======= */
 
 /* Transições suaves do box (tela) */
@@ -227,11 +290,39 @@ button.ripple::after{
 <div class="box" id="create">
   <h2 id="t_create">🔐 Criar mensagem secreta</h2>
   <textarea id="text" placeholder=""></textarea>
+
+  <!-- ======= ADICIONADO (opção 2) ======= -->
+  <div class="options" id="optionsBox">
+    <label id="t_expire_label" for="expire">Expirar em</label>
+    <select id="expire">
+      <option value="600000">10 min</option>
+      <option value="3600000">1 hora</option>
+      <option value="86400000">1 dia</option>
+      <option value="604800000">7 dias</option>
+    </select>
+
+    <div class="row">
+      <input type="checkbox" id="oneTime" checked>
+      <label for="oneTime" id="t_one_time">Abrir apenas 1 vez</label>
+    </div>
+
+    <label id="t_pass_label" for="pass">Senha (opcional)</label>
+    <input id="pass" type="password" placeholder="">
+  </div>
+  <!-- ======= /ADICIONADO ======= -->
+
   <button onclick="createNote()" id="t_create_btn"></button>
 
   <div id="linkBox" style="display:none">
     <div class="link" id="result"></div>
-    <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
+
+    <!-- ======= ADICIONADO (opção 3) ======= -->
+    <div class="actions">
+      <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
+      <button class="share-btn" onclick="shareLink()" id="t_share"></button>
+      <button class="preview-btn" onclick="previewLink()" id="t_preview"></button>
+    </div>
+    <!-- ======= /ADICIONADO ======= -->
   </div>
 
   <div class="footer">
@@ -285,6 +376,8 @@ const texts={
     placeholder:"Digite sua mensagem secreta... (pode usar HTML: <b>, <i>, <a>, <img>)",
     createBtn:"Criar link secreto",
     copy:"📋 Copiar link",
+    share:"🔗 Compartilhar",
+    preview:"👁️ Pré-visualizar",
     created:"Criado por ",
     legal:"Não utilize para atividades ilegais.",
     protected:"⚠️ Mensagem protegida",
@@ -292,13 +385,19 @@ const texts={
     break:"💣 Quebrar nota",
     new:"➕ Criar nova nota",
     msg:"📩 Mensagem secreta",
-    destroyed:"🕒 Nota destruída em: "
+    destroyed:"🕒 Nota destruída em: ",
+    passPlaceholder:"Defina uma senha (opcional)...",
+    expireLabel:"Expirar em",
+    oneTime:"Abrir apenas 1 vez",
+    passLabel:"Senha (opcional)"
   },
   en:{
     create:"🔐 Create secret message",
     placeholder:"Type your secret message... (HTML allowed: <b>, <i>, <a>, <img>)",
     createBtn:"Create secret link",
     copy:"📋 Copy link",
+    share:"🔗 Share",
+    preview:"👁️ Preview",
     created:"Created by ",
     legal:"Do not use for illegal activities.",
     protected:"⚠️ Protected message",
@@ -306,7 +405,11 @@ const texts={
     break:"💣 Break note",
     new:"➕ Create new note",
     msg:"📩 Secret message",
-    destroyed:"🕒 Note destroyed at: "
+    destroyed:"🕒 Note destroyed at: ",
+    passPlaceholder:"Set a password (optional)...",
+    expireLabel:"Expires in",
+    oneTime:"Open only once",
+    passLabel:"Password (optional)"
   }
 };
 
@@ -317,7 +420,11 @@ function applyLang(){
   document.getElementById("t_create").innerText=t.create;
   document.getElementById("text").placeholder=t.placeholder;
   document.getElementById("t_create_btn").innerText=t.createBtn;
+
   document.getElementById("t_copy").innerText=t.copy;
+  document.getElementById("t_share").innerText=t.share;
+  document.getElementById("t_preview").innerText=t.preview;
+
   document.getElementById("t_created").innerText=t.created;
   document.getElementById("t_legal").innerText=t.legal;
   document.getElementById("t_protected").innerText=t.protected;
@@ -326,6 +433,12 @@ function applyLang(){
   document.getElementById("t_new").innerText=t.new;
   document.getElementById("t_new2").innerText=t.new;
   document.getElementById("t_message").innerText=t.msg;
+
+  // opção 2 (labels/placeholders)
+  document.getElementById("t_expire_label").innerText=t.expireLabel;
+  document.getElementById("t_one_time").innerText=t.oneTime;
+  document.getElementById("t_pass_label").innerText=t.passLabel;
+  document.getElementById("pass").placeholder=t.passPlaceholder;
 }
 applyLang();
 
@@ -381,6 +494,12 @@ function formatDate(ts){
   return d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 }
 
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
 window.breakNote=async()=>{
   flash.classList.add("active");
   setTimeout(async()=>{
@@ -396,7 +515,31 @@ window.breakNote=async()=>{
       msg.innerText="❌";
       timeEl.innerText="";
     }else{
-      const raw = snap.data().text || "";
+      const data = snap.data() || {};
+      const raw = data.text || "";
+
+      // Expiração
+      if(typeof data.expiresAt === "number" && now > data.expiresAt){
+        msg.innerText="⏳";
+        timeEl.innerText="";
+        await deleteDoc(ref);
+        return;
+      }
+
+      // Se tiver senha, pedir antes de mostrar
+      if(data.passHash){
+        const promptText = (lang==="pt")
+          ? "Digite a senha para abrir a nota:"
+          : "Enter the password to open the note:";
+        const entered = prompt(promptText) || "";
+        const enteredHash = await sha256Hex(entered);
+
+        if(enteredHash !== data.passHash){
+          msg.innerText = (lang==="pt") ? "🔒 Senha incorreta." : "🔒 Wrong password.";
+          timeEl.innerText = "";
+          return;
+        }
+      }
 
       // HTML renderizado com segurança (DOMPurify)
       msg.innerHTML = DOMPurify.sanitize(raw, {
@@ -417,7 +560,11 @@ window.breakNote=async()=>{
       });
 
       timeEl.innerText=texts[lang].destroyed+formatDate(now);
-      await deleteDoc(ref);
+
+      // Abrir 1 vez (padrão) ou manter
+      if(data.oneTime !== false){
+        await deleteDoc(ref);
+      }
     }
   },500);
 };
@@ -434,15 +581,55 @@ window.createNote=async()=>{
   }
   /* ======= /ADICIONADO ======= */
 
+  const expireMs = parseInt(document.getElementById("expire").value, 10);
+  const oneTime = document.getElementById("oneTime").checked;
+  const pass = document.getElementById("pass").value || "";
+
   const id=Math.random().toString(36).substring(2,10);
-  await setDoc(doc(db,"notes",id),{text,createdAt:Date.now()});
-  document.getElementById("result").innerText=`${location.origin}${location.pathname}?id=${id}`;
+
+  const payload = {
+    text,
+    createdAt: Date.now(),
+    oneTime,
+    expiresAt: Date.now() + (isNaN(expireMs) ? 86400000 : expireMs)
+  };
+
+  if(pass.trim()){
+    payload.passHash = await sha256Hex(pass.trim());
+  }
+
+  await setDoc(doc(db,"notes",id), payload);
+
+  const url = `${location.origin}${location.pathname}?id=${id}`;
+  document.getElementById("result").innerText = url;
   document.getElementById("linkBox").style.display="block";
 };
 
 window.copyLink=()=>{
   const resultEl = document.getElementById("result");
   navigator.clipboard.writeText(resultEl.innerText);
+};
+
+window.shareLink=async()=>{
+  const url = document.getElementById("result").innerText;
+
+  // Se o navegador suportar, abre o compartilhamento nativo
+  if(navigator.share){
+    try{
+      await navigator.share({ title: "Privinote", text: "Link secreto:", url });
+      return;
+    }catch(e){
+      // usuário cancelou, ou falhou — cai no fallback
+    }
+  }
+
+  // Fallback: copia
+  await navigator.clipboard.writeText(url);
+};
+
+window.previewLink=()=>{
+  const url = document.getElementById("result").innerText;
+  if(url) window.open(url, "_blank", "noopener,noreferrer");
 };
 
 window.goCreate=()=>location.href=location.pathname;
