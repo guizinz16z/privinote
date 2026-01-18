@@ -230,8 +230,6 @@ button:hover{
 
 
 /* ======= ADICIONADO (animações) ======= */
-
-/* Transições suaves do box (tela) */
 .box{
   transform: translateY(10px);
   opacity: 0;
@@ -243,7 +241,6 @@ button:hover{
   opacity: 1;
 }
 
-/* Botões com “press” melhor + ripple simples */
 button{
   position: relative;
   overflow: hidden;
@@ -269,7 +266,6 @@ button.ripple::after{
   100%{ opacity:0; transform:translate(-50%,-50%) scale(26); }
 }
 
-/* Shake quando tentar criar nota vazia */
 @keyframes shake{
   0%,100%{ transform:translateX(0); }
   20%{ transform:translateX(-8px); }
@@ -279,19 +275,27 @@ button.ripple::after{
 }
 .shake{ animation: shake .35s ease; }
 
-/* Fade/slide para a mensagem aparecer */
 @keyframes reveal{
   from{ opacity:0; transform: translateY(10px); }
   to{ opacity:1; transform: translateY(0); }
 }
 .reveal{ animation: reveal .35s ease; }
 
-/* Respeitar acessibilidade */
 @media (prefers-reduced-motion: reduce){
   .box, .box.show, .reveal, .shake, button.ripple::after{
     animation:none !important;
     transition:none !important;
   }
+}
+
+/* ✅ FIX MOBILE: botões 🌓🌐 voltam pro canto certo */
+.top-controls{
+  position: fixed !important;
+  top: 15px !important;
+  right: 15px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 9999 !important;
 }
 </style>
 </head>
@@ -313,7 +317,7 @@ button.ripple::after{
   <h2 id="t_create">🔐 Criar mensagem secreta</h2>
   <textarea id="text" placeholder=""></textarea>
 
-  <!-- ======= ADICIONADO (opção 2) ======= -->
+  <!-- ======= OPÇÃO 2 ======= -->
   <div class="options" id="optionsBox">
     <label id="t_expire_label" for="expire">Expirar em</label>
     <select id="expire">
@@ -331,20 +335,18 @@ button.ripple::after{
     <label id="t_pass_label" for="pass">Senha (opcional)</label>
     <input id="pass" type="password" placeholder="">
   </div>
-  <!-- ======= /ADICIONADO ======= -->
 
   <button onclick="createNote()" id="t_create_btn"></button>
 
   <div id="linkBox" style="display:none">
     <div class="link" id="result"></div>
 
-    <!-- ======= ADICIONADO (opção 3) ======= -->
+    <!-- ======= OPÇÃO 3 ======= -->
     <div class="actions">
       <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
       <button class="share-btn" onclick="shareLink()" id="t_share"></button>
       <button class="preview-btn" onclick="previewLink()" id="t_preview"></button>
     </div>
-    <!-- ======= /ADICIONADO ======= -->
   </div>
 
   <div class="footer">
@@ -365,15 +367,11 @@ button.ripple::after{
 <!-- VIEW -->
 <div class="box" id="view" style="display:none">
   <h2 id="t_message"></h2>
-
-  <!-- TROQUEI P -> DIV (melhor pra HTML) -->
   <div id="message"></div>
-
   <div class="time" id="destroyTime"></div>
   <button onclick="goCreate()" id="t_new2"></button>
 </div>
 
-<!-- DOMPurify (para HTML seguro) -->
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
 
 <script type="module">
@@ -456,7 +454,6 @@ function applyLang(){
   document.getElementById("t_new2").innerText=t.new;
   document.getElementById("t_message").innerText=t.msg;
 
-  // opção 2 (labels/placeholders)
   document.getElementById("t_expire_label").innerText=t.expireLabel;
   document.getElementById("t_one_time").innerText=t.oneTime;
   document.getElementById("t_pass_label").innerText=t.passLabel;
@@ -485,7 +482,6 @@ const msg=document.getElementById("message");
 const timeEl=document.getElementById("destroyTime");
 const flash=document.getElementById("flash");
 
-/* ======= ADICIONADO (JS de animação) ======= */
 function showBox(el){
   [create, breaker, view].forEach(b=>{
     b.classList.remove("show");
@@ -495,15 +491,13 @@ function showBox(el){
   requestAnimationFrame(()=> el.classList.add("show"));
 }
 
-// Ripple em todos os botões
 document.querySelectorAll("button").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     btn.classList.remove("ripple");
-    void btn.offsetWidth; // reinicia animação
+    void btn.offsetWidth;
     btn.classList.add("ripple");
   });
 });
-/* ======= /ADICIONADO ======= */
 
 if(id){
   showBox(breaker);
@@ -540,7 +534,6 @@ window.breakNote=async()=>{
       const data = snap.data() || {};
       const raw = data.text || "";
 
-      // Expiração
       if(typeof data.expiresAt === "number" && now > data.expiresAt){
         msg.innerText="⏳";
         timeEl.innerText="";
@@ -548,7 +541,6 @@ window.breakNote=async()=>{
         return;
       }
 
-      // Se tiver senha, pedir antes de mostrar
       if(data.passHash){
         const promptText = (lang==="pt")
           ? "Digite a senha para abrir a nota:"
@@ -563,7 +555,6 @@ window.breakNote=async()=>{
         }
       }
 
-      // HTML renderizado com segurança (DOMPurify)
       msg.innerHTML = DOMPurify.sanitize(raw, {
         USE_PROFILES: { html: true },
         ALLOWED_TAGS: [
@@ -583,7 +574,6 @@ window.breakNote=async()=>{
 
       timeEl.innerText=texts[lang].destroyed+formatDate(now);
 
-      // Abrir 1 vez (padrão) ou manter
       if(data.oneTime !== false){
         await deleteDoc(ref);
       }
@@ -594,14 +584,12 @@ window.breakNote=async()=>{
 window.createNote=async()=>{
   const text=document.getElementById("text").value.trim();
 
-  /* ======= ADICIONADO (shake se vazio) ======= */
   if(!text){
     create.classList.remove("shake");
     void create.offsetWidth;
     create.classList.add("shake");
     return;
   }
-  /* ======= /ADICIONADO ======= */
 
   const expireMs = parseInt(document.getElementById("expire").value, 10);
   const oneTime = document.getElementById("oneTime").checked;
@@ -635,17 +623,13 @@ window.copyLink=()=>{
 window.shareLink=async()=>{
   const url = document.getElementById("result").innerText;
 
-  // Se o navegador suportar, abre o compartilhamento nativo
   if(navigator.share){
     try{
       await navigator.share({ title: "Privinote", text: "Link secreto:", url });
       return;
-    }catch(e){
-      // usuário cancelou, ou falhou — cai no fallback
-    }
+    }catch(e){}
   }
 
-  // Fallback: copia
   await navigator.clipboard.writeText(url);
 };
 
