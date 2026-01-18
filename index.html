@@ -317,7 +317,6 @@ button.ripple::after{
   <h2 id="t_create">🔐 Criar mensagem secreta</h2>
   <textarea id="text" placeholder=""></textarea>
 
-  <!-- ======= OPÇÃO 2 ======= -->
   <div class="options" id="optionsBox">
     <label id="t_expire_label" for="expire">Expirar em</label>
     <select id="expire">
@@ -341,7 +340,6 @@ button.ripple::after{
   <div id="linkBox" style="display:none">
     <div class="link" id="result"></div>
 
-    <!-- ======= OPÇÃO 3 ======= -->
     <div class="actions">
       <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
       <button class="share-btn" onclick="shareLink()" id="t_share"></button>
@@ -641,7 +639,7 @@ window.previewLink=()=>{
 window.goCreate=()=>location.href=location.pathname;
 
 
-// ======= CHUVA CYBERPUNK (leve) =======
+// ======= CHUVA CYBERPUNK (leve) + RELÂMPAGO SUAVE =======
 const rainCanvas = document.getElementById("rain");
 const rctx = rainCanvas.getContext("2d");
 
@@ -667,8 +665,33 @@ for(let i=0;i<DROP_COUNT;i++){
   });
 }
 
+// relâmpago: controla o "flash" do fundo
+let lightning = 0; // 0..1
+let nextLightning = Date.now() + (2500 + Math.random()*4500);
+
+function maybeLightning(){
+  const now = Date.now();
+  if(now > nextLightning){
+    lightning = 0.55 + Math.random()*0.35; // intensidade
+    nextLightning = now + (2500 + Math.random()*4500);
+  }
+  // decai suave
+  lightning *= 0.92;
+  if(lightning < 0.01) lightning = 0;
+}
+
 function rain(){
   rctx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+
+  // flash suave do relâmpago (por trás da chuva)
+  maybeLightning();
+  if(lightning > 0){
+    rctx.save();
+    rctx.globalAlpha = lightning * 0.22;
+    rctx.fillStyle = "#bfefff";
+    rctx.fillRect(0,0,rainCanvas.width,rainCanvas.height);
+    rctx.restore();
+  }
 
   for(const d of drops){
     rctx.beginPath();
