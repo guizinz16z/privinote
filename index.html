@@ -210,6 +210,25 @@ button:hover{
 /* ======= /ADICIONADO ======= */
 
 
+/* ======= ADICIONADO (CHUVA CYBERPUNK) ======= */
+#rain{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:0;
+  opacity:.45;
+  filter: blur(.2px);
+}
+
+.box, .top-controls{
+  position:relative;
+  z-index:2;
+}
+/* ======= /ADICIONADO ======= */
+
+
 /* ======= ADICIONADO (animações) ======= */
 
 /* Transições suaves do box (tela) */
@@ -278,6 +297,9 @@ button.ripple::after{
 </head>
 
 <body>
+
+<!-- ✅ CHUVA CYBERPUNK -->
+<canvas id="rain"></canvas>
 
 <div class="top-controls">
   <button onclick="toggleTheme()">🌓</button>
@@ -633,6 +655,70 @@ window.previewLink=()=>{
 };
 
 window.goCreate=()=>location.href=location.pathname;
+
+
+// ======= CHUVA CYBERPUNK (leve) =======
+const rainCanvas = document.getElementById("rain");
+const rctx = rainCanvas.getContext("2d");
+
+function resizeRain(){
+  rainCanvas.width = innerWidth;
+  rainCanvas.height = innerHeight;
+}
+resizeRain();
+addEventListener("resize", resizeRain);
+
+const drops = [];
+const DROP_COUNT = 140;
+
+for(let i=0;i<DROP_COUNT;i++){
+  drops.push({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight,
+    l: Math.random() * 18 + 8,
+    s: Math.random() * 6 + 3,
+    w: Math.random() * 1.2 + 0.4,
+    a: Math.random() * 0.35 + 0.15,
+    glow: Math.random() > 0.7
+  });
+}
+
+function rain(){
+  rctx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+
+  for(const d of drops){
+    rctx.beginPath();
+    rctx.globalAlpha = d.a;
+
+    rctx.strokeStyle = d.glow ? "#00ffcc" : "#00c6ff";
+    rctx.lineWidth = d.w;
+
+    if(d.glow){
+      rctx.shadowColor = "#00c6ff";
+      rctx.shadowBlur = 8;
+    }else{
+      rctx.shadowBlur = 0;
+    }
+
+    rctx.moveTo(d.x, d.y);
+    rctx.lineTo(d.x + d.w, d.y + d.l);
+    rctx.stroke();
+
+    d.y += d.s;
+    d.x += 0.4;
+
+    if(d.y > innerHeight + 40){
+      d.y = -20;
+      d.x = Math.random() * innerWidth;
+    }
+    if(d.x > innerWidth + 40){
+      d.x = -20;
+    }
+  }
+
+  requestAnimationFrame(rain);
+}
+rain();
 </script>
 
 </body>
