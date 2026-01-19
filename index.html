@@ -461,7 +461,7 @@ async function initFirebase(){
     console.error("Firebase load failed", e);
   }
 }
-initFirebase();
+const firebaseReady = initFirebase();
 
 const texts={
   pt:{
@@ -674,6 +674,7 @@ window.clearForm=()=>{
 
 /* ===== BREAK com confirmação ===== */
 window.breakNote=async()=>{
+  await firebaseReady;
   if(!db){
     showToast(lang==="pt"?"Falha ao carregar Firebase":"Failed to load Firebase");
     return;
@@ -759,6 +760,7 @@ window.breakNote=async()=>{
 };
 
 window.createNote=async()=>{
+  await firebaseReady;
   if(!db){
     showToast(lang==="pt"?"Falha ao carregar Firebase":"Failed to load Firebase");
     return;
@@ -792,7 +794,7 @@ window.createNote=async()=>{
 
   await setDoc(doc(db,"notes",id), payload);
 
-  const url = `${location.origin}${location.pathname}?id=${id}`;
+  const url = `${location.origin}${location.origin}${location.pathname}?id=${id}`;
   document.getElementById("result").innerText = url;
   document.getElementById("createdExpireInfo").innerText = texts[lang].expiresAt + formatDate(expiresAt);
   document.getElementById("linkBox").style.display="block";
