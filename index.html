@@ -439,9 +439,7 @@ body.light .toast{ background: rgba(20,20,20,.85); }
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getFirestore,doc,setDoc,getDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+let initializeApp, getFirestore, doc, setDoc, getDoc, deleteDoc;
 const firebaseConfig={
   apiKey:"AIzaSyBHOFAcNcQ-397zebLS_n0G8M4meM7hVq8",
   authDomain:"privinote.firebaseapp.com",
@@ -451,8 +449,19 @@ const firebaseConfig={
   appId:"1:583662739248:web:ba624aa2e0cd070a0272f5"
 };
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+let db = null;
+
+async function initFirebase(){
+  try{
+    ({ initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"));
+    ({ getFirestore, doc, setDoc, getDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"));
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+  }catch(e){
+    console.error("Firebase load failed", e);
+  }
+}
+initFirebase();
 
 const texts={
   pt:{
@@ -665,6 +674,10 @@ window.clearForm=()=>{
 
 /* ===== BREAK com confirmação ===== */
 window.breakNote=async()=>{
+  if(!db){
+    showToast(lang==="pt"?"Falha ao carregar Firebase":"Failed to load Firebase");
+    return;
+  }
   const ok = confirm(texts[lang].confirmBreak);
   if(!ok) return;
 
@@ -746,6 +759,10 @@ window.breakNote=async()=>{
 };
 
 window.createNote=async()=>{
+  if(!db){
+    showToast(lang==="pt"?"Falha ao carregar Firebase":"Failed to load Firebase");
+    return;
+  }
   const text=document.getElementById("text").value.trim();
   if(!text){
     create.classList.remove("shake");
@@ -789,7 +806,8 @@ window.copyLink=async()=>{
   const url = resultEl.innerText;
   try{
     await navigator.clipboard.writeText(url);
-    showToast(texts[lang].copied);}catch(e){
+    showToast(texts[lang].copied);
+  }catch(e){
     showToast(texts[lang].copiedFallback);
   }
 };
