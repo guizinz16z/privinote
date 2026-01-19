@@ -5,6 +5,9 @@
 <title>Privinote</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- ADICIONADO: meta description (não muda nada no visual) -->
+<meta name="description" content="Crie mensagens secretas com link, expiração, senha opcional e auto-destruição.">
+
 <style>
 :root{
   --bg-dark: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
@@ -147,7 +150,7 @@ button:hover{
   opacity:.75;
 }
 
-/* ======= ADICIONADO (opções 2 e 3) ======= */
+/* ======= (opções 2 e 3) ======= */
 .options{
   margin-top:10px;
   text-align:left;
@@ -207,10 +210,15 @@ button:hover{
   color:#111;
   font-weight:bold;
 }
-/* ======= /ADICIONADO ======= */
 
+/* ADICIONADO: botão limpar */
+.clear-btn{
+  background:linear-gradient(135deg,#ff5f6d,#ffc371);
+  color:#111;
+  font-weight:bold;
+}
 
-/* ======= ADICIONADO (CHUVA CYBERPUNK) ======= */
+/* ======= CHUVA CYBERPUNK ======= */
 #rain{
   position:fixed;
   inset:0;
@@ -226,10 +234,8 @@ button:hover{
   position:relative;
   z-index:2;
 }
-/* ======= /ADICIONADO ======= */
 
-
-/* ======= ADICIONADO (animações) ======= */
+/* ======= animações ======= */
 .box{
   transform: translateY(10px);
   opacity: 0;
@@ -288,7 +294,7 @@ button.ripple::after{
   }
 }
 
-/* ✅ FIX MOBILE: botões 🌓🌐 voltam pro canto certo */
+/* FIX MOBILE: botões canto certo */
 .top-controls{
   position: fixed !important;
   top: 15px !important;
@@ -297,6 +303,48 @@ button.ripple::after{
   bottom: auto !important;
   z-index: 9999 !important;
 }
+
+/* ADICIONADO: Toast */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.78);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(-6px);
+}
+body.light .toast{ background: rgba(20,20,20,.85); }
+
+/* ADICIONADO: Histórico */
+.history{
+  margin-top:10px;
+  text-align:left;
+  font-size:12px;
+  opacity:.85;
+}
+.history-title{
+  font-weight:bold;
+  margin-bottom:6px;
+}
+.history a{
+  color: var(--accent);
+  text-decoration:none;
+  word-break:break-all;
+  display:block;
+  margin-top:6px;
+}
+.history .muted{ opacity:.7; }
 </style>
 </head>
 
@@ -307,9 +355,14 @@ button.ripple::after{
 <div class="top-controls">
   <button onclick="toggleTheme()">🌓</button>
   <button onclick="toggleLang()">🌐</button>
+  <!-- ADICIONADO: toggle efeitos -->
+  <button onclick="toggleEffects()" id="fxBtn">✨</button>
 </div>
 
 <div class="flash" id="flash"></div>
+
+<!-- ADICIONADO: Toast -->
+<div class="toast" id="toast"></div>
 
 <!-- CREATE -->
 <div class="box" id="create">
@@ -336,14 +389,26 @@ button.ripple::after{
 
   <button onclick="createNote()" id="t_create_btn"></button>
 
+  <!-- ADICIONADO: botão limpar -->
+  <button class="clear-btn" onclick="clearForm()" id="t_clear">🧹 Limpar</button>
+
   <div id="linkBox" style="display:none">
     <div class="link" id="result"></div>
+    <!-- ADICIONADO: mostra expiração -->
+    <div class="time" id="createdExpireInfo"></div>
 
     <div class="actions">
       <button class="copy-btn" onclick="copyLink()" id="t_copy"></button>
       <button class="share-btn" onclick="shareLink()" id="t_share"></button>
       <button class="preview-btn" onclick="previewLink()" id="t_preview"></button>
     </div>
+  </div>
+
+  <!-- ADICIONADO: histórico local -->
+  <div class="history" id="historyBox" style="display:none">
+    <div class="history-title" id="t_history">🕘 Últimos links</div>
+    <div id="historyList"></div>
+    <div class="muted" id="t_history_hint"></div>
   </div>
 
   <div class="footer">
@@ -357,6 +422,8 @@ button.ripple::after{
 <div class="box" id="breaker" style="display:none">
   <h2 id="t_protected"></h2>
   <p id="t_warning"></p>
+  <!-- ADICIONADO: info expiração ao abrir -->
+  <div class="time" id="openExpireInfo"></div>
   <button class="danger" onclick="breakNote()" id="t_break"></button>
   <button onclick="goCreate()" id="t_new"></button>
 </div>
@@ -395,6 +462,7 @@ const texts={
     copy:"📋 Copiar link",
     share:"🔗 Compartilhar",
     preview:"👁️ Pré-visualizar",
+    clear:"🧹 Limpar",
     created:"Criado por ",
     legal:"Não utilize para atividades ilegais.",
     protected:"⚠️ Mensagem protegida",
@@ -406,7 +474,18 @@ const texts={
     passPlaceholder:"Defina uma senha (opcional)...",
     expireLabel:"Expirar em",
     oneTime:"Abrir apenas 1 vez",
-    passLabel:"Senha (opcional)"
+    passLabel:"Senha (opcional)",
+    history:"🕘 Últimos links",
+    historyHint:"(Fica salvo só no seu navegador)",
+    fxOn:"Efeitos: ON",
+    fxOff:"Efeitos: OFF",
+    confirmBreak:"Tem certeza que deseja quebrar? Isso destrói a nota.",
+    linkCreated:"Link criado ✅",
+    copied:"Link copiado ✅",
+    shared:"Link compartilhado ✅",
+    copiedFallback:"Copiado ✅",
+    cleared:"Limpo ✅",
+    expiresAt:"⏳ Expira em: "
   },
   en:{
     create:"🔐 Create secret message",
@@ -415,6 +494,7 @@ const texts={
     copy:"📋 Copy link",
     share:"🔗 Share",
     preview:"👁️ Preview",
+    clear:"🧹 Clear",
     created:"Created by ",
     legal:"Do not use for illegal activities.",
     protected:"⚠️ Protected message",
@@ -426,11 +506,30 @@ const texts={
     passPlaceholder:"Set a password (optional)...",
     expireLabel:"Expires in",
     oneTime:"Open only once",
-    passLabel:"Password (optional)"
+    passLabel:"Password (optional)",
+    history:"🕘 Recent links",
+    historyHint:"(Saved only in your browser)",
+    fxOn:"Effects: ON",
+    fxOff:"Effects: OFF",
+    confirmBreak:"Are you sure? This will destroy the note.",
+    linkCreated:"Link created ✅",
+    copied:"Link copied ✅",
+    shared:"Link shared ✅",
+    copiedFallback:"Copied ✅",
+    cleared:"Cleared ✅",
+    expiresAt:"⏳ Expires at: "
   }
 };
 
 let lang=localStorage.getItem("lang")||"pt";
+
+function showToast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg;
+  el.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=> el.classList.remove("show"), 1600);
+}
 
 function applyLang(){
   const t=texts[lang];
@@ -441,6 +540,8 @@ function applyLang(){
   document.getElementById("t_copy").innerText=t.copy;
   document.getElementById("t_share").innerText=t.share;
   document.getElementById("t_preview").innerText=t.preview;
+
+  document.getElementById("t_clear").innerText=t.clear;
 
   document.getElementById("t_created").innerText=t.created;
   document.getElementById("t_legal").innerText=t.legal;
@@ -455,6 +556,11 @@ function applyLang(){
   document.getElementById("t_one_time").innerText=t.oneTime;
   document.getElementById("t_pass_label").innerText=t.passLabel;
   document.getElementById("pass").placeholder=t.passPlaceholder;
+
+  document.getElementById("t_history").innerText=t.history;
+  document.getElementById("t_history_hint").innerText=t.historyHint;
+
+  updateFxBtn();
 }
 applyLang();
 
@@ -488,6 +594,7 @@ function showBox(el){
   requestAnimationFrame(()=> el.classList.add("show"));
 }
 
+// Ripple
 document.querySelectorAll("button").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     btn.classList.remove("ripple");
@@ -513,7 +620,54 @@ async function sha256Hex(str){
   return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
+/* ===== ADICIONADO: histórico local ===== */
+function loadHistory(){
+  const listEl=document.getElementById("historyList");
+  const box=document.getElementById("historyBox");
+  let items=[];
+  try{ items = JSON.parse(localStorage.getItem("history_links")||"[]"); }catch(e){}
+  if(!Array.isArray(items) || items.length===0){
+    box.style.display="none";
+    return;
+  }
+  box.style.display="block";
+  listEl.innerHTML="";
+  items.slice(0,5).forEach(url=>{
+    const a=document.createElement("a");
+    a.href=url;
+    a.target="_blank";
+    a.rel="noopener noreferrer";
+    a.textContent=url;
+    listEl.appendChild(a);
+  });
+}
+function addHistory(url){
+  let items=[];
+  try{ items = JSON.parse(localStorage.getItem("history_links")||"[]"); }catch(e){}
+  if(!Array.isArray(items)) items=[];
+  items = items.filter(x=>x!==url);
+  items.unshift(url);
+  items = items.slice(0,10);
+  localStorage.setItem("history_links", JSON.stringify(items));
+  loadHistory();
+}
+loadHistory();
+
+/* ===== ADICIONADO: Limpar ===== */
+window.clearForm=()=>{
+  document.getElementById("text").value="";
+  document.getElementById("pass").value="";
+  document.getElementById("linkBox").style.display="none";
+  document.getElementById("result").innerText="";
+  document.getElementById("createdExpireInfo").innerText="";
+  showToast(texts[lang].cleared);
+};
+
+/* ===== BREAK com confirmação ===== */
 window.breakNote=async()=>{
+  const ok = confirm(texts[lang].confirmBreak);
+  if(!ok) return;
+
   flash.classList.add("active");
   setTimeout(async()=>{
     showBox(view);
@@ -527,17 +681,28 @@ window.breakNote=async()=>{
     if(!snap.exists()){
       msg.innerText="❌";
       timeEl.innerText="";
+      document.getElementById("openExpireInfo").innerText="";
+      showToast("❌");
     }else{
       const data = snap.data() || {};
       const raw = data.text || "";
+
+      // Expiração
+      if(typeof data.expiresAt === "number"){
+        document.getElementById("openExpireInfo").innerText = texts[lang].expiresAt + formatDate(data.expiresAt);
+      }else{
+        document.getElementById("openExpireInfo").innerText = "";
+      }
 
       if(typeof data.expiresAt === "number" && now > data.expiresAt){
         msg.innerText="⏳";
         timeEl.innerText="";
         await deleteDoc(ref);
+        showToast("⏳");
         return;
       }
 
+      // Senha
       if(data.passHash){
         const promptText = (lang==="pt")
           ? "Digite a senha para abrir a nota:"
@@ -548,6 +713,7 @@ window.breakNote=async()=>{
         if(enteredHash !== data.passHash){
           msg.innerText = (lang==="pt") ? "🔒 Senha incorreta." : "🔒 Wrong password.";
           timeEl.innerText = "";
+          showToast((lang==="pt") ? "🔒 Senha incorreta" : "🔒 Wrong password");
           return;
         }
       }
@@ -571,6 +737,7 @@ window.breakNote=async()=>{
 
       timeEl.innerText=texts[lang].destroyed+formatDate(now);
 
+      // Abrir 1 vez
       if(data.oneTime !== false){
         await deleteDoc(ref);
       }
@@ -580,7 +747,6 @@ window.breakNote=async()=>{
 
 window.createNote=async()=>{
   const text=document.getElementById("text").value.trim();
-
   if(!text){
     create.classList.remove("shake");
     void create.offsetWidth;
@@ -594,11 +760,13 @@ window.createNote=async()=>{
 
   const id=Math.random().toString(36).substring(2,10);
 
+  const expiresAt = Date.now() + (isNaN(expireMs) ? 86400000 : expireMs);
+
   const payload = {
     text,
     createdAt: Date.now(),
     oneTime,
-    expiresAt: Date.now() + (isNaN(expireMs) ? 86400000 : expireMs)
+    expiresAt
   };
 
   if(pass.trim()){
@@ -609,12 +777,21 @@ window.createNote=async()=>{
 
   const url = `${location.origin}${location.pathname}?id=${id}`;
   document.getElementById("result").innerText = url;
+  document.getElementById("createdExpireInfo").innerText = texts[lang].expiresAt + formatDate(expiresAt);
   document.getElementById("linkBox").style.display="block";
+
+  addHistory(url);
+  showToast(texts[lang].linkCreated);
 };
 
-window.copyLink=()=>{
+window.copyLink=async()=>{
   const resultEl = document.getElementById("result");
-  navigator.clipboard.writeText(resultEl.innerText);
+  const url = resultEl.innerText;
+  try{
+    await navigator.clipboard.writeText(url);
+    showToast(texts[lang].copied);}catch(e){
+    showToast(texts[lang].copiedFallback);
+  }
 };
 
 window.shareLink=async()=>{
@@ -623,11 +800,17 @@ window.shareLink=async()=>{
   if(navigator.share){
     try{
       await navigator.share({ title: "Privinote", text: "Link secreto:", url });
+      showToast(texts[lang].shared);
       return;
     }catch(e){}
   }
 
-  await navigator.clipboard.writeText(url);
+  try{
+    await navigator.clipboard.writeText(url);
+    showToast(texts[lang].copiedFallback);
+  }catch(e){
+    showToast("✅");
+  }
 };
 
 window.previewLink=()=>{
@@ -637,20 +820,36 @@ window.previewLink=()=>{
 
 window.goCreate=()=>location.href=location.pathname;
 
+/* ===== EFEITOS ON/OFF ===== */
+const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let effectsEnabled = localStorage.getItem("effects")==="off" ? false : true;
+if(prefersReduced) effectsEnabled = false;
 
-// ======= CHUVA CYBERPUNK (OTIMIZADA) + RELÂMPAGO SUAVE =======
+function updateFxBtn(){
+  const btn=document.getElementById("fxBtn");
+  if(!btn) return;
+  btn.title = effectsEnabled ? texts[lang].fxOn : texts[lang].fxOff;
+  btn.style.opacity = effectsEnabled ? "1" : ".65";
+}
+window.toggleEffects=()=>{
+  effectsEnabled = !effectsEnabled;
+  localStorage.setItem("effects", effectsEnabled ? "on" : "off");
+  updateFxBtn();
+};
+updateFxBtn();
+
+
+/* ======= CHUVA CYBERPUNK (OTIMIZADA) + RELÂMPAGO SUAVE ======= */
 const rainCanvas = document.getElementById("rain");
 const rctx = rainCanvas.getContext("2d");
 
-// Pausa quando a aba/app não está visível (evita lag no retorno)
 let running = true;
 document.addEventListener("visibilitychange", ()=>{
   running = !document.hidden;
 });
 
-// Reduz resolução do canvas (muito importante no celular)
 function resizeRain(){
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // limita DPR
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   rainCanvas.width = Math.floor(innerWidth * dpr);
   rainCanvas.height = Math.floor(innerHeight * dpr);
   rainCanvas.style.width = innerWidth + "px";
@@ -660,7 +859,6 @@ function resizeRain(){
 resizeRain();
 addEventListener("resize", resizeRain);
 
-// Menos gotas no mobile
 const isMobile = matchMedia("(max-width: 520px)").matches;
 const DROP_COUNT = isMobile ? 85 : 140;
 
@@ -673,12 +871,10 @@ for(let i=0;i<DROP_COUNT;i++){
     s: Math.random() * 6 + 3,
     w: Math.random() * 1.2 + 0.4,
     a: Math.random() * 0.35 + 0.15,
-    // menos glow (mais leve)
     glow: Math.random() > 0.88
   });
 }
 
-// relâmpago suave
 let lightning = 0;
 let nextLightning = Date.now() + (2500 + Math.random()*4500);
 
@@ -695,6 +891,11 @@ function maybeLightning(){
 function rain(){
   requestAnimationFrame(rain);
   if(!running) return;
+
+  if(!effectsEnabled){
+    rctx.clearRect(0,0,innerWidth,innerHeight);
+    return;
+  }
 
   rctx.clearRect(0,0,innerWidth,innerHeight);
 
@@ -716,7 +917,7 @@ function rain(){
 
     if(d.glow){
       rctx.shadowColor = "#00c6ff";
-      rctx.shadowBlur = 5; // menor = mais leve
+      rctx.shadowBlur = 5;
     }else{
       rctx.shadowBlur = 0;
     }
