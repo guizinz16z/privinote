@@ -302,7 +302,6 @@ button.ripple::after{
 
 <body>
 
-<!-- ✅ CHUVA CYBERPUNK -->
 <canvas id="rain"></canvas>
 
 <div class="top-controls">
@@ -639,20 +638,33 @@ window.previewLink=()=>{
 window.goCreate=()=>location.href=location.pathname;
 
 
-// ======= CHUVA CYBERPUNK (leve) + RELÂMPAGO SUAVE =======
+// ======= CHUVA CYBERPUNK (OTIMIZADA) + RELÂMPAGO SUAVE =======
 const rainCanvas = document.getElementById("rain");
 const rctx = rainCanvas.getContext("2d");
 
+// Pausa quando a aba/app não está visível (evita lag no retorno)
+let running = true;
+document.addEventListener("visibilitychange", ()=>{
+  running = !document.hidden;
+});
+
+// Reduz resolução do canvas (muito importante no celular)
 function resizeRain(){
-  rainCanvas.width = innerWidth;
-  rainCanvas.height = innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // limita DPR
+  rainCanvas.width = Math.floor(innerWidth * dpr);
+  rainCanvas.height = Math.floor(innerHeight * dpr);
+  rainCanvas.style.width = innerWidth + "px";
+  rainCanvas.style.height = innerHeight + "px";
+  rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 resizeRain();
 addEventListener("resize", resizeRain);
 
-const drops = [];
-const DROP_COUNT = 140;
+// Menos gotas no mobile
+const isMobile = matchMedia("(max-width: 520px)").matches;
+const DROP_COUNT = isMobile ? 85 : 140;
 
+const drops = [];
 for(let i=0;i<DROP_COUNT;i++){
   drops.push({
     x: Math.random() * innerWidth,
@@ -661,35 +673,37 @@ for(let i=0;i<DROP_COUNT;i++){
     s: Math.random() * 6 + 3,
     w: Math.random() * 1.2 + 0.4,
     a: Math.random() * 0.35 + 0.15,
-    glow: Math.random() > 0.7
+    // menos glow (mais leve)
+    glow: Math.random() > 0.88
   });
 }
 
-// relâmpago: controla o "flash" do fundo
-let lightning = 0; // 0..1
+// relâmpago suave
+let lightning = 0;
 let nextLightning = Date.now() + (2500 + Math.random()*4500);
 
 function maybeLightning(){
   const now = Date.now();
   if(now > nextLightning){
-    lightning = 0.55 + Math.random()*0.35; // intensidade
+    lightning = 0.55 + Math.random()*0.35;
     nextLightning = now + (2500 + Math.random()*4500);
   }
-  // decai suave
   lightning *= 0.92;
   if(lightning < 0.01) lightning = 0;
 }
 
 function rain(){
-  rctx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+  requestAnimationFrame(rain);
+  if(!running) return;
 
-  // flash suave do relâmpago (por trás da chuva)
+  rctx.clearRect(0,0,innerWidth,innerHeight);
+
   maybeLightning();
   if(lightning > 0){
     rctx.save();
     rctx.globalAlpha = lightning * 0.22;
     rctx.fillStyle = "#bfefff";
-    rctx.fillRect(0,0,rainCanvas.width,rainCanvas.height);
+    rctx.fillRect(0,0,innerWidth,innerHeight);
     rctx.restore();
   }
 
@@ -702,7 +716,7 @@ function rain(){
 
     if(d.glow){
       rctx.shadowColor = "#00c6ff";
-      rctx.shadowBlur = 8;
+      rctx.shadowBlur = 5; // menor = mais leve
     }else{
       rctx.shadowBlur = 0;
     }
@@ -722,8 +736,6 @@ function rain(){
       d.x = -20;
     }
   }
-
-  requestAnimationFrame(rain);
 }
 rain();
 </script>
