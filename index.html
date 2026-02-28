@@ -2,8 +2,33 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Privinote</title>
+<title>Privinote — Mensagens secretas que se autodestroem</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- SEO -->
+<meta name="description" content="Crie mensagens secretas com link único que se autodestroem após serem lidas. Proteja com senha, defina tempo de expiração e compartilhe com segurança.">
+<meta name="keywords" content="mensagem secreta, privinote, nota autodestruível, link secreto, privacidade, mensagem segura">
+<meta name="author" content="Guizin16z">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph (WhatsApp, Facebook, Telegram) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Privinote — Mensagens que se autodestroem 🔐">
+<meta property="og:description" content="Crie um link secreto com sua mensagem. Ela expira automaticamente ou se autodestrói após ser lida. Grátis e sem cadastro.">
+<meta property="og:image" content="https://notexxz.netlify.app/og-image.png">
+<meta property="og:url" content="https://notexxz.netlify.app/">
+<meta property="og:site_name" content="Privinote">
+<meta property="og:locale" content="pt_BR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privinote — Mensagens que se autodestroem 🔐">
+<meta name="twitter:description" content="Crie um link secreto com sua mensagem. Ela expira automaticamente ou se autodestrói após ser lida.">
+<meta name="twitter:image" content="https://notexxz.netlify.app/og-image.png">
+
+<!-- Favicon via SVG emoji -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -433,7 +458,40 @@ body.light .toast{
 /* ======= /ADICIONADO ======= */
 
 
-/* ======= ADICIONADO (MOBILE MAIS COMPACTO) ======= */
+/* ======= CONTADOR DE CARACTERES ======= */
+.textarea-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.char-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: color .2s, opacity .2s;
+  font-family: monospace;
+}
+
+.char-counter.warn {
+  color: #ffb347;
+  opacity: 0.85;
+}
+
+.char-counter.danger {
+  color: #ff4b2b;
+  opacity: 1;
+}
+
+textarea {
+  padding-bottom: 28px !important;
+}
+/* ======= /CONTADOR DE CARACTERES ======= */
+
+
 @media (max-width: 520px){
   body{ padding: 12px; }
   .box{ padding: 20px; border-radius: 18px; }
@@ -471,7 +529,10 @@ body.light .toast{
 <!-- CREATE -->
 <div class="box" id="create">
   <h2 id="t_create">🔐 Criar mensagem secreta</h2>
-  <textarea id="text" placeholder=""></textarea>
+  <div class="textarea-wrap">
+    <textarea id="text" placeholder="" maxlength="5000"></textarea>
+    <span class="char-counter" id="charCounter">0 / 5000</span>
+  </div>
 
   <div class="options" id="optionsBox">
     <label id="t_expire_label" for="expire">Expirar em</label>
@@ -576,7 +637,11 @@ const texts={
     noteCreated:"✅ Nota criada!",
     noteBroken:"💥 Nota quebrada!",
     noteExpired:"⏳ Nota expirada.",
-    linkCopied:"✅ Link copiado!"
+    linkCopied:"✅ Link copiado!",
+    messageTitle:"📩 Mensagem secreta",
+    expiresIn:"⏳ Expira em {time}",
+    previewOpened:"👁️ Pré-visualização aberta (não destruída)",
+    noteNotFound:"❌ Nota não encontrada ou expirada."
   },
   en:{
     create:"🔐 Create secret message",
@@ -609,7 +674,11 @@ const texts={
     noteCreated:"✅ Note created!",
     noteBroken:"💥 Note broken!",
     noteExpired:"⏳ Note expired.",
-    linkCopied:"✅ Link copied!"
+    linkCopied:"✅ Link copied!",
+    messageTitle:"📩 Secret message",
+    expiresIn:"⏳ Expires in {time}",
+    previewOpened:"👁️ Preview opened (not destroyed)",
+    noteNotFound:"❌ Note not found or expired."
   }
 };
 
@@ -641,6 +710,20 @@ function applyLang(){
   document.getElementById("pass").placeholder=t.passPlaceholder;
 }
 applyLang();
+
+// ======= CONTADOR DE CARACTERES =======
+const textArea = document.getElementById("text");
+const charCounter = document.getElementById("charCounter");
+const MAX_CHARS = 5000;
+
+textArea.addEventListener("input", ()=>{
+  const len = textArea.value.length;
+  charCounter.textContent = `${len} / ${MAX_CHARS}`;
+  charCounter.className = "char-counter";
+  if(len > MAX_CHARS * 0.9) charCounter.classList.add("warn");
+  if(len > MAX_CHARS * 0.97) charCounter.classList.add("danger");
+});
+// ======= /CONTADOR DE CARACTERES =======
 
 window.toggleLang=()=>{
   lang=lang==="pt"?"en":"pt";
@@ -850,6 +933,14 @@ window.shareLink=async()=>{
   showToast("success", texts[lang].linkCopied);
 };
 
+// Helper para formatar segundos
+function formatTime(secs){
+  if(secs < 60) return secs + "s";
+  if(secs < 3600) return Math.floor(secs/60) + "min";
+  if(secs < 86400) return Math.floor(secs/3600) + "h";
+  return Math.floor(secs/86400) + "d";
+}
+
 // Preview deve abrir direto a nota (sem ir para a tela de quebrar)
 window.previewLink=async()=>{
   const url = document.getElementById("result").innerText;
@@ -866,7 +957,7 @@ window.previewLink=async()=>{
     // busca nota no Firestore sem deletar nem quebrar
     const snap = await getDoc(doc(db, "notes", id));
     if(!snap.exists()){
-      showToast("error", texts[lang].expired || "Nota não encontrada");
+      showToast("danger", texts[lang].noteNotFound);
       return;
     }
 
@@ -874,14 +965,12 @@ window.previewLink=async()=>{
 
     // Verifica expiração
     if(data.expiresAt && data.expiresAt < Date.now()){
-      showToast("error", texts[lang].expired);
+      showToast("warn", texts[lang].noteExpired);
       return;
     }
 
     // Mostra direto a mensagem (não passa pela tela de quebrar)
-    document.getElementById("creator").style.display = "none";
-    document.getElementById("breaker").style.display = "none";
-    document.getElementById("view").style.display = "block";
+    showBox(view);
 
     document.getElementById("t_message").innerText = texts[lang].messageTitle;
     document.getElementById("message").innerHTML = DOMPurify.sanitize(data.text || "");
@@ -894,7 +983,7 @@ window.previewLink=async()=>{
       document.getElementById("destroyTime").innerText = "";
     }
 
-    showToast("success", texts[lang].previewOpened || "Pré-visualização aberta");
+    showToast("success", texts[lang].previewOpened);
   }catch(e){
     // fallback: abre link normal
     window.open(url, "_blank", "noopener,noreferrer");
