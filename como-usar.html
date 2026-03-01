@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Como usar • Notexxz</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Aprenda a usar o Notexxz — mensagens secretas que se autodestroem.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060b14;--sf:rgba(8,18,36,.88);
+  --b:rgba(0,210,255,.18);--bh:rgba(0,210,255,.55);
+  --n:#00d2ff;--n2:#00ff9d;--n3:#ff2d6e;
+  --t:#e2f0ff;--td:rgba(226,240,255,.45);
+}
+body.light{
+  --bg:#f0f4fa;--sf:rgba(255,255,255,.93);
+  --b:rgba(0,100,190,.18);--bh:rgba(0,100,190,.5);
+  --n:#006fc2;--n2:#009a60;--n3:#d4003a;
+  --t:#0a1628;--td:rgba(10,22,40,.45);
+}
+body.theme-purple{
+  --bg:#0d0614;--sf:rgba(20,8,36,.9);
+  --b:rgba(180,0,255,.2);--bh:rgba(180,0,255,.6);
+  --n:#c800ff;--n2:#ff00c8;--n3:#ff2d6e;
+  --t:#f0e2ff;--td:rgba(240,226,255,.45);
+}
+body.theme-red{
+  --bg:#140608;--sf:rgba(36,8,10,.9);
+  --b:rgba(255,30,60,.2);--bh:rgba(255,30,60,.6);
+  --n:#ff1e3c;--n2:#ff6b00;--n3:#ff2d6e;
+  --t:#ffe2e6;--td:rgba(255,226,230,.45);
+}
+/* seletor de tema */
+.theme-picker{display:flex;gap:6px;align-items:center;justify-content:center}
+.theme-dot{
+  width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;
+  transition:transform .2s,border-color .2s;flex-shrink:0;
+}
+.theme-dot:hover,.theme-dot.active{transform:scale(1.25);border-color:#fff}
+.theme-dot.cyan{background:linear-gradient(135deg,#00d2ff,#00ff9d)}
+.theme-dot.purple{background:linear-gradient(135deg,#c800ff,#ff00c8)}
+.theme-dot.red{background:linear-gradient(135deg,#ff1e3c,#ff6b00)}
+.theme-dot.light-d{background:linear-gradient(135deg,#e2f0ff,#c3d8f0);border-color:rgba(0,0,0,.2)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  padding:16px;transition:background .35s,color .35s;overflow-x:hidden;
+}
+#rain{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* card — idêntico ao index */
+.box{
+  position:relative;z-index:2;background:var(--sf);border:1px solid var(--b);
+  border-radius:22px;padding:26px 24px;max-width:480px;width:100%;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 0 0 1px var(--b),0 0 50px rgba(0,210,255,.05),0 24px 60px rgba(0,0,0,.55);
+  opacity:0;transform:translateY(14px);
+  transition:opacity .38s ease,transform .38s ease,border-color .25s,box-shadow .3s ease;
+}
+.box.show{opacity:1;transform:none}
+.box:hover{
+  border-color:var(--bh);
+  box-shadow:0 0 0 1px var(--bh),0 0 60px rgba(0,210,255,.09),0 24px 60px rgba(0,0,0,.55);
+}
+
+/* logo */
+.logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:20px}
+.logo-icon{font-size:23px;animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 5px var(--n))}50%{filter:drop-shadow(0 0 13px var(--n))}}
+.logo-text{
+  font-family:'Orbitron',sans-serif;font-size:19px;font-weight:900;
+  letter-spacing:4px;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--n),var(--n2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* page title */
+.page-title{
+  font-family:'Share Tech Mono',monospace;font-size:10.5px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--td);
+  margin-bottom:18px;text-align:center;
+}
+
+/* divider */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--bh),transparent);margin:16px 0}
+
+/* sections */
+.section-title{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--n);margin-bottom:10px;
+}
+.section-title span{
+  flex:1;height:1px;background:linear-gradient(90deg,var(--b),transparent);
+}
+ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+ul li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13.5px;line-height:1.6;color:var(--t);
+  padding:10px 14px;
+  background:rgba(0,210,255,.03);
+  border:1px solid var(--b);
+  border-radius:14px;
+  transition:border-color .2s,background .2s;
+}
+ul li:hover{border-color:var(--bh);background:rgba(0,210,255,.06)}
+ul li::before{
+  content:'▸';color:var(--n);font-size:12px;
+  margin-top:2px;flex-shrink:0;
+}
+body.light ul li{background:rgba(0,100,190,.03)}
+body.light ul li:hover{background:rgba(0,100,190,.07)}
+body.theme-purple ul li{background:rgba(180,0,255,.03)}
+body.theme-purple ul li:hover{background:rgba(180,0,255,.08);border-color:rgba(180,0,255,.5)}
+body.theme-red ul li{background:rgba(255,30,60,.03)}
+body.theme-red ul li:hover{background:rgba(255,30,60,.08);border-color:rgba(255,30,60,.5)}
+
+/* tip badge */
+.tip{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:9px 14px;
+  background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.2);
+  border-radius:14px;font-family:'Share Tech Mono',monospace;
+  font-size:11.5px;color:var(--n2);width:100%;
+}
+
+/* buttons */
+button{
+  width:100%;padding:12px 16px;border:none;border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,border-color .22s ease,color .22s ease;
+  letter-spacing:.4px;
+}
+button:active{transform:scale(.95)!important;transition:transform .1s ease!important}
+button::after{
+  content:'';position:absolute;width:10px;height:10px;left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(1);background:rgba(255,255,255,.28);
+  border-radius:999px;opacity:0;pointer-events:none;
+}
+button.rpl::after{animation:rpl .46s ease-out}
+@keyframes rpl{0%{opacity:.5;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(28)}}
+
+.btn-back{
+  background:linear-gradient(135deg,var(--n),#0072ff);color:#000;font-weight:700;
+  margin-top:20px;font-family:'Orbitron',sans-serif;font-size:10.5px;
+  letter-spacing:2.5px;text-transform:uppercase;
+  box-shadow:0 0 20px rgba(0,210,255,.25);
+  text-decoration:none;display:block;text-align:center;padding:13px;
+  border-radius:50px;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease;
+}
+.btn-back:hover{box-shadow:0 0 36px rgba(0,210,255,.48);transform:translateY(-1px)}
+
+/* top controls — idêntico ao index */
+.tc{position:fixed!important;top:13px!important;right:13px!important;left:auto!important;bottom:auto!important;z-index:9999!important;display:flex;gap:6px}
+.tc button{width:auto;padding:6px 11px;font-size:14px;border-radius:8px;margin:0;background:rgba(0,0,0,.48);border:1px solid var(--b);color:var(--t);backdrop-filter:blur(10px)}
+body.light .tc button{background:rgba(255,255,255,.75)}
+.tc button:hover{border-color:var(--bh);background:rgba(0,210,255,.1)}
+
+/* status pill */
+.fs{position:fixed;left:13px;bottom:13px;z-index:9999}
+.sp{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--td);border:1px solid var(--b);background:rgba(0,0,0,.4);backdrop-filter:blur(12px)}
+body.light .sp{background:rgba(255,255,255,.78)}
+.sd{width:7px;height:7px;border-radius:999px;background:var(--n2);box-shadow:0 0 6px var(--n2);animation:bl 2.2s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.sd.off{background:var(--n3);box-shadow:0 0 6px var(--n3);animation:none}
+
+/* mobile */
+@media(max-width:520px){
+  body{padding:12px}
+  .box{padding:20px 16px}
+  .logo-text{font-size:17px;letter-spacing:3px}
+  ul li{font-size:13px;padding:9px 12px}
+  .tc{top:11px!important;right:11px!important}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+
+<div class="tc">
+  <button onclick="toggleTheme()">🌓</button>
+  <button onclick="toggleLang()">🌐</button>
+</div>
+
+<!-- SELETOR DE TEMAS (canto inferior direito) -->
+<div style="position:fixed;right:13px;bottom:13px;z-index:9999">
+  <div class="theme-picker">
+    <div class="theme-dot cyan active" onclick="setTheme('cyan')" title="Cyan"></div>
+    <div class="theme-dot purple" onclick="setTheme('purple')" title="Roxo"></div>
+    <div class="theme-dot red" onclick="setTheme('red')" title="Vermelho"></div>
+    <div class="theme-dot light-d" onclick="setTheme('light')" title="Claro"></div>
+  </div>
+</div>
+
+<div class="fs">
+  <div class="sp">
+    <span class="sd" id="onlineDot"></span>
+    <span id="onlineText">online</span>
+  </div>
+</div>
+
+<div class="box" id="card">
+  <div class="logo">
+    <span class="logo-icon">📘</span>
+    <span class="logo-text">Notexxz</span>
+  </div>
+  <p class="page-title" id="t_title">como usar</p>
+
+  <div class="section">
+    <div class="section-title" id="t_h2_1">1) Criar uma nota <span></span></div>
+    <ul>
+      <li id="t_1a"></li>
+      <li id="t_1b"></li>
+      <li id="t_1c"></li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title" id="t_h2_2">2) Enviar o link <span></span></div>
+    <ul>
+      <li id="t_2a"></li>
+      <li id="t_2b"></li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title" id="t_h2_3">🔒 Privacidade <span></span></div>
+    <ul>
+      <li id="t_3a"></li>
+      <li id="t_3b"></li>
+      <li id="t_3c"></li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title" id="t_h2_4">⚠️ Observações <span></span></div>
+    <ul>
+      <li id="t_4a"></li>
+      <li id="t_4b"></li>
+    </ul>
+  </div>
+
+  <div class="tip" id="t_tip"></div>
+
+  <a class="btn-back" href="index.html" id="t_back">⬅️ Voltar</a>
+</div>
+
+<script>
+const T={
+  pt:{
+    title:"como usar",
+    h21:"1) Criar uma nota",
+    a1:"Digite sua mensagem e escolha o tempo de expiração.",
+    b1:"Marque 'Abrir apenas 1 vez' se quiser que apague após ler.",
+    c1:"Senha é opcional: só abre com a senha correta.",
+    h22:"2) Enviar o link",
+    a2:"Clique em 'Copiar link' ou 'Compartilhar'.",
+    b2:"O botão 'Ver' mostra a nota sem destruí-la (preview).",
+    h23:"🔒 Privacidade",
+    a3:"A nota expira automaticamente no tempo escolhido.",
+    b3:"Se '1 vez' estiver marcado, ela pode sumir após abrir.",
+    c3:"Não compartilhe a senha no mesmo lugar do link.",
+    h24:"⚠️ Observações",
+    a4:"Se você clicar em 'Quebrar nota', ela pode ser destruída.",
+    b4:"Não use para atividades ilegais.",
+    tip:"💡 Dica: use senha + '1 vez' para máxima segurança.",
+    back:"⬅️ Voltar",
+    on:"online",off:"offline"
+  },
+  en:{
+    title:"how it works",
+    h21:"1) Create a note",
+    a1:"Type your message and choose an expiration time.",
+    b1:"Enable 'Open only once' to delete after reading.",
+    c1:"Password is optional: it only opens with the correct password.",
+    h22:"2) Send the link",
+    a2:"Tap 'Copy link' or 'Share'.",
+    b2:"The 'Preview' button shows the note without breaking it.",
+    h23:"🔒 Privacy",
+    a3:"The note expires automatically after the chosen time.",
+    b3:"If 'one time' is enabled, it may disappear after opening.",
+    c3:"Don't share the password in the same place as the link.",
+    h24:"⚠️ Notes",
+    a4:"If you press 'Break note', it can be destroyed.",
+    b4:"Do not use for illegal activities.",
+    tip:"💡 Tip: use password + 'once' for maximum security.",
+    back:"⬅️ Back",
+    on:"online",off:"offline"
+  }
+};
+
+let lang=localStorage.getItem("lang")||"pt";
+const $=id=>document.getElementById(id);
+
+function applyLang(){
+  const t=T[lang];
+  document.documentElement.lang=lang==="pt"?"pt-BR":"en";
+  $("t_title").innerText=t.title;
+  $("t_h2_1").innerHTML=t.h21+' <span></span>';
+  $("t_1a").innerText=t.a1;
+  $("t_1b").innerText=t.b1;
+  $("t_1c").innerText=t.c1;
+  $("t_h2_2").innerHTML=t.h22+' <span></span>';
+  $("t_2a").innerText=t.a2;
+  $("t_2b").innerText=t.b2;
+  $("t_h2_3").innerHTML=t.h23+' <span></span>';
+  $("t_3a").innerText=t.a3;
+  $("t_3b").innerText=t.b3;
+  $("t_3c").innerText=t.c3;
+  $("t_h2_4").innerHTML=t.h24+' <span></span>';
+  $("t_4a").innerText=t.a4;
+  $("t_4b").innerText=t.b4;
+  $("t_tip").innerText=t.tip;
+  $("t_back").innerText=t.back;
+  const on=navigator.onLine;
+  $("onlineDot").classList.toggle("off",!on);
+  $("onlineText").textContent=on?t.on:t.off;
+}
+applyLang();
+
+window.toggleLang=()=>{lang=lang==="pt"?"en":"pt";localStorage.setItem("lang",lang);applyLang()};
+
+// ===== SISTEMA DE TEMAS (igual ao index) =====
+const THEMES=["cyan","purple","red","light"];
+window.setTheme=function(theme){
+  document.body.classList.remove("theme-purple","theme-red","light");
+  if(theme==="purple") document.body.classList.add("theme-purple");
+  else if(theme==="red") document.body.classList.add("theme-red");
+  else if(theme==="light") document.body.classList.add("light");
+  localStorage.setItem("theme",theme);
+  document.querySelectorAll(".theme-dot").forEach(d=>d.classList.remove("active"));
+  const dot=document.querySelector(`.theme-dot.${theme==="light"?"light-d":theme}`);
+  if(dot) dot.classList.add("active");
+};
+window.toggleTheme=()=>{
+  const cur=localStorage.getItem("theme")||"cyan";
+  const next=THEMES[(THEMES.indexOf(cur)+1)%THEMES.length];
+  setTheme(next);
+};
+const savedTheme=localStorage.getItem("theme")||"cyan";
+setTheme(savedTheme);
+window.addEventListener("online",applyLang);
+window.addEventListener("offline",applyLang);
+
+// ripple nos botões
+document.querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click",()=>{b.classList.remove("rpl");void b.offsetWidth;b.classList.add("rpl")});
+});
+
+// entrada suave do card
+requestAnimationFrame(()=>$("card").classList.add("show"));
+
+// ===== PARTICLE NETWORK (mesmo do index) =====
+const cv=document.getElementById("rain"),cx=cv.getContext("2d");
+const mob=matchMedia("(max-width:520px)").matches;
+let run=true;
+document.addEventListener("visibilitychange",()=>{run=!document.hidden});
+
+function rsz(){cv.width=innerWidth;cv.height=innerHeight}
+rsz();addEventListener("resize",()=>{rsz();init()});
+
+const N=mob?45:80,MAX_D=mob?120:150;
+let pts=[];
+function init(){
+  pts=[];
+  for(let i=0;i<N;i++) pts.push({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+    r:Math.random()*1.8+.6,c:Math.random()>.75?1:0
+  });
+}
+init();
+
+const COL=["#00d2ff","#00ff9d"];
+let frame=0;
+function loop(){
+  requestAnimationFrame(loop);
+  if(!run)return;
+  if(mob&&(frame++&1))return;
+  cx.clearRect(0,0,innerWidth,innerHeight);
+  for(let i=0;i<N;i++){
+    for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MAX_D){
+        cx.beginPath();cx.globalAlpha=(1-d/MAX_D)*.18;
+        cx.strokeStyle=COL[pts[i].c];cx.lineWidth=.6;
+        cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.stroke();
+      }
+    }
+  }
+  for(const p of pts){
+    cx.beginPath();cx.globalAlpha=.55;
+    cx.fillStyle=COL[p.c];cx.shadowBlur=p.c?6:4;cx.shadowColor=COL[p.c];
+    cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fill();
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>innerWidth)p.vx*=-1;
+    if(p.y<0||p.y>innerHeight)p.vy*=-1;
+  }
+  cx.shadowBlur=0;
+}
+loop();
+</script>
+</body>
+</html>
